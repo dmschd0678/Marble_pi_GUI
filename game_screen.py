@@ -1,30 +1,35 @@
 from tkinter import *
-import tkinter.ttk as ttk
 
 class game():
 
     def __init__(self,playerNum):
+
         self._root = Tk()
         self._root.resizable(False,False)
         self._root.state('zoomed')
         self._playerNum = int(playerNum.replace("명",""))
 
-        leftFrame = Frame(self._root)
-        leftFrame.pack(side = 'left',fill = 'both',expand = True)
-        rightFrame = Frame(self._root)
-        rightFrame.pack(side = 'right', fill = 'both',expand = True)
+        left_Frame = Frame(self._root)
+        left_Frame.pack(side = "left", expand = True,fill = 'both')
 
-        player1 = Label(leftFrame, text = "player1", bg = '#FF7F50')
-        player1.pack(fill='both', expand=True, side='top')
+        right_frame = Frame(self._root)
+        right_frame.pack(side = 'right', expand = True,fill = 'both')
 
-        player2 = Label(rightFrame, text="player2", bg = '#00FFFF')
-        player2.pack(fill='both', expand=True, side='top')
+        l_top_frame = Frame(left_Frame)
+        l_top_frame.pack(side = 'top', expand = True,fill = 'both')
 
-        player3 = Label(leftFrame, text="player3", bg = '#FFD700')
-        player3.pack(fill='both', expand=True, side='bottom')
+        l_bototm_frame = Frame(left_Frame)
+        l_bototm_frame.pack(side = 'bottom', expand = True,fill = 'both')
 
-        player4 = Label(rightFrame, text="player4", bg = '#ADFF2F')
-        player4.pack(fill='both', expand=True, side='bottom')
+        r_top_frame = Frame(right_frame)
+        r_top_frame.pack(side = 'top', expand = True,fill = 'both')
+
+        r_bottom_frame = Frame(right_frame)
+        r_bottom_frame.pack(side = 'bottom', expand = True,fill = 'both')
+
+        if playerNum == 2:
+            pass
+
 
 class player():
     def __init__(self):
@@ -32,9 +37,9 @@ class player():
         self._goldenKey = []
         self._property = self._money
 
-    def buy(self):
+    def buy(self, price):
         pass
 
-    def pay(self):
+    def pay(self, price):
         pass
 

@@ -4,10 +4,10 @@ import game_screen
 
 def create_window():
     game_screen.game(combobox.get())
+    window.destroy()
 
 window = Tk()
 window.title("Mable.pi")
-# window.state("zoomed")
 window.resizable(False,False)
 
 startFrame = Frame(window)
