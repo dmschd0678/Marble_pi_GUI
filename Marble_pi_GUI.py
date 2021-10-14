@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 import game_screen
 
 def create_window():
-    game_screen.game(combobox.get())
+    game_screen.start(int(combobox.get().replace("명", "")))
     window.destroy()
 
 window = Tk()
