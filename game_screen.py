@@ -6,7 +6,7 @@ import requests
 class Player():
     def __init__(self):
         self.money = 1000
-        self.goldenKey = [1,2,3,4,5]
+        self.goldenKey = []
         self.total_assets = self.money
 
 class PlayerInfo():
