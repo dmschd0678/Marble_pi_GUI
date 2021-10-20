@@ -1,6 +1,20 @@
 from tkinter import *
 import tkinter.font as tkfont
 import requests
+import serial
+
+height_ratio = 216
+width_ratio = 384
+
+width = 0
+height = 0
+
+player_color = [
+    "red",
+    "blue",
+    "yellow",
+    "white"
+]
 
 url = {"init" : "15.165.88.215:8080/init",
        "toll" : "15.165.88.215:8080/player/toll?userID=1&cityID=2&usingShield=0",
@@ -8,101 +22,81 @@ url = {"init" : "15.165.88.215:8080/init",
        "key"  : "15.165.88.215:8080/key",
        "upgrade" : "15.165.88.215:8080/area/upgrade?user_id=1"}
 
-
 class Player():
-    def __init__(self):
+    def __init__(self, frame, text, color):
+        # requests.post(url["init"])
         self.money = 500000
-        self.goldenKey = ["a","b","c","d"]
+        self.goldenkey = []
         self.total_assets = self.money
 
-    def toll(self):
-        pass
+        playerFrame = LabelFrame(frame, width = 50, height = 5)
+        playerFrame.pack(side = "top", padx = 10, pady = 10, ipady = 20, expand = True)
 
-    def buy(self):
-        pass
+        Name =Label(playerFrame,text = text, width = 40, bg = color, font = tkfont.Font(size = 20))
+        Name.pack(side = "top", fill = 'x')
+
+        moneyInfo = Label(playerFrame,text = "돈 : " + self.moneyStr(self.money))
+        moneyInfo.pack(fill = 'x')
+
+        total_assetsInfo = Label(playerFrame, text = "총 자산 : " + self.moneyStr(self.total_assets))
+        total_assetsInfo.pack(fill = 'x')
+
+    def moneyStr(self, money):
+        return f"{money // 10000}만" + ("원" if money % 10000 == 0 else str(money % 10000) + "원")
 
 
-class PlayerInfo():
+class window():
+    def __init__(self, playerNum):
 
+        global width,height
 
-    def __init__(self, frame, name, color):
-        font = tkfont.Font(size=30)
+        self.player = []
 
-        self.player = Player()
+        self.root = Tk()
+        self.root.resizable(False,False)
+        self.root.state('zoomed')
 
-        self.playerName = Label(frame, text = name, bg = color, font = font)
-        self.playerName.pack(fill='x', side='top',anchor = "n")
+        width = self.root.winfo_screenwidth()
+        height = self.root.winfo_screenheight()
 
-        self.__moneyInfo = Label(frame, text = "보유 돈 : " + self.strMoney(self.player.money), bg = color, font = font)
-        self.__moneyInfo.pack(fill = 'x', side = 'top',anchor = "n")
+        print(width)
+        print(height)
 
-        self.__totalAssetsInfo = Label(frame, text = "총 자산 : " + self.strMoney(self.player.total_assets), bg = color, font = font)
-        self.__totalAssetsInfo.pack(fill = 'x', side = 'top', anchor = 'n')
+        # 노트북 화면 크기
+        # width = 1536
+        # height = 864
 
-        self.__goldenKeyInfo = Label(frame, text = "보유 황금열쇠 : " + str(list(i for i in self.player.goldenKey)), bg = color, font = font)
-        self.__goldenKeyInfo.pack(fill = 'x', side = 'top',anchor = "n")
+        # 모니터 화면 크기
+        # width = 1920
+        # height = 1080
 
-    def strMoney(self, money):
-        money = str(money // 10000) + "만" + \
-                   (str(money % 10000) + "원"
-                    if str(money % 10000) != "0" else "원")
-        return money
+        font = tkfont.Font(size = 30)
 
-    def setMoneyInfo(self):
-        pass
+        rootFrame = Frame(self.root)
+        rootFrame.pack(expand = True, fill = 'both', ipady = 10)
 
-    def setTotalAssetsInfo(self):
-        pass
+        logo = Label(rootFrame, text = "Marble.py", font = font, height = 4)
+        logo.pack(fill = 'x', side = 'top')
 
-    def setGoldenKeyInfo(self):
-        pass
+        frame = Frame(rootFrame, pady = 20, padx = 20, bg = "black")
+        frame.pack(fill = 'both', expand = True)
 
-class GameInit():
-    def __init__(self,playerNum):
+        bluemarble = Frame(frame, padx = 10,bg = "green")
+        bluemarble.pack(fill = 'both',expand = True, side = "left")
 
-        root = Tk()
-        root.resizable(False,False)
-        root.state('zoomed')
+        ranking = Frame(frame, pady = 10,padx = 10, bg = "white")
+        ranking.pack(fill = 'both', side = "right")
 
-        playerNum = playerNum
+        for i in range(playerNum):
+            self.player.append(Player(ranking, i, player_color[i]))
 
-        left_Frame = Frame(root)  # 왼쪽 프레임
-        # left_Frame.pack(side = "left", expand = True,fill = 'both')
-        left_Frame.pack(side = "left",fill = 'both')
+        font = tkfont.Font()
 
-        right_frame = Frame(root) # 오른쪽 프레임
-        # right_frame.pack(side = 'right', expand = True,fill = 'both')
-        right_frame.pack(side = 'right',fill = 'both')
+        Ybtn = Button(rootFrame, text = "Yes", height = 2, font = font)
+        Ybtn.pack(side = "left", fill = "x",expand = True, padx = 10)
 
-        l_top_frame = Frame(left_Frame) # 왼쪽 위 프레임
-        # l_top_frame.pack(side = 'top', expand = True,fill = 'both')
-        l_top_frame.pack(side = 'top',fill = 'both')
-
-        l_bototm_frame = Frame(left_Frame)  # 왼쪽 아래 프레임
-        # l_bototm_frame.pack(side = 'bottom', expand = True,fill = 'both')
-        l_bototm_frame.pack(side = 'bottom',fill = 'both')
-
-        r_top_frame = Frame(right_frame)    # 오른쪽 위 프레임
-        # r_top_frame.pack(side = 'top', expand = True,fill = 'both')
-        r_top_frame.pack(side = 'top', fill = 'both')
-
-        r_bottom_frame = Frame(right_frame) # 오른쪽 아래 프레임
-        # r_bottom_frame.pack(side = 'bottom', expand = True,fill = 'both')
-        r_bottom_frame.pack(side = 'bottom',fill = 'both')
-
-        if playerNum >= 2:
-            self.player1 = PlayerInfo(l_top_frame, "player1", '#FF7F50')
-            self.player2 = PlayerInfo(r_top_frame, "player2", '#00FFFF')
-
-            if playerNum >= 3:
-                self.player3 = PlayerInfo(l_bototm_frame, "player3", '#FFD700')
-
-                if playerNum >= 4:
-                    self.player4 = PlayerInfo(r_bottom_frame, "player4",'#ADFF2F')
-
+        Nbtn = Button(rootFrame, text = "No", height = 2, font = font)
+        Nbtn.pack(side = "right", fill = "x",expand = True, padx = 10)
 
 def start(playerNum):
-    # 초기화
-    # url = "15.165.88.215:8080/init"
-    # res = requests.get(url)
-    GameInit(playerNum)
+    window(playerNum)
