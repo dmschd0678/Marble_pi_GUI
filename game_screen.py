@@ -17,10 +17,10 @@ player_color = [
 ]
 
 url = {"init" : "15.165.88.215:8080/init",
-       "toll" : "15.165.88.215:8080/player/toll?userID=1&cityID=2&usingShield=0",
-       "buy"  : "15.165.88.215:8080/area/buy?userID=1&cityID=2",
+       "toll" : "15.165.88.215:8080/player/toll?userID={}&cityID={}&usingShield={}",
+       "buy"  : "15.165.88.215:8080/area/buy?userID={}&cityID={}",
        "key"  : "15.165.88.215:8080/key",
-       "upgrade" : "15.165.88.215:8080/area/upgrade?user_id=1"}
+       "upgrade" : "15.165.88.215:8080/area/upgrade?user_id={}"}
 
 class Player():
     def __init__(self, frame, text, color):
@@ -43,6 +43,21 @@ class Player():
 
     def moneyStr(self, money):
         return f"{money // 10000}만" + ("원" if money % 10000 == 0 else str(money % 10000) + "원")
+
+    def buy(self):
+        pass
+
+    def toll(self):
+        pass
+
+    def move(self):
+        pass
+
+    def upgrade(self):
+        pass
+
+    def key(self):
+        pass
 
 
 class window():
@@ -92,11 +107,22 @@ class window():
 
         font = tkfont.Font()
 
-        Ybtn = Button(rootFrame, text = "Yes", height = 2, font = font)
-        Ybtn.pack(side = "left", fill = "x",expand = True, padx = 10)
+        land = [[0 for col in range(10)] for row in range(10)]
 
-        Nbtn = Button(rootFrame, text = "No", height = 2, font = font)
-        Nbtn.pack(side = "right", fill = "x",expand = True, padx = 10)
+        for i in range(10):
+            for j in range(10):
+                if (i == 0 or i == 9) or (j == 0 or j == 9):
+                    label = Label(bluemarble, text=f"{i,j}", width = 13, height = 4)
+                    label.grid(row=i, column=j, sticky=N + E + W + S)
+                    land[i][j] = label
+        # Ybtn = Button(rootFrame, text="Yes", height=2, font=font)
+        # Ybtn.pack(side="left", fill="x", expand=True, padx=10)
+
+        Ybtn = Button(bluemarble, text="Yes", width = 13, height=4)
+        Ybtn.grid(row = 3, column = 5, sticky = N+E+W+S)
+        Nbtn = Button(rootFrame, text="No", width = 13, height=4)
+        Nbtn.grid(row = 2, column = 4, sticky = N+E+W+S)
+
 
 def start(playerNum):
     window(playerNum)
