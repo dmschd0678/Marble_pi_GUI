@@ -41,8 +41,13 @@ class Player():
         total_assetsInfo = Label(playerFrame, text = "총 자산 : " + self.moneyStr(self.total_assets))
         total_assetsInfo.pack(fill = 'x')
 
+        goldenKeyInfo = Label(playerFrame, text = self.goldenKeyStr(self.goldenkey))
+
     def moneyStr(self, money):
         return f"{money // 10000}만" + ("원" if money % 10000 == 0 else str(money % 10000) + "원")
+
+    def goldenKeyStr(self,goldenKey):
+        pass
 
     def buy(self):
         pass
@@ -87,41 +92,44 @@ class window():
 
         font = tkfont.Font(size = 30)
 
-        rootFrame = Frame(self.root)
-        rootFrame.pack(expand = True, fill = 'both', ipady = 10)
+        self.rootFrame = Frame(self.root)
+        self.rootFrame.pack(expand = True, fill = 'both', ipady = 10)
 
-        logo = Label(rootFrame, text = "Marble.py", font = font, height = 4)
+        logo = Label(self.rootFrame, text = "Marble.py", font = font, height = 4)
         logo.pack(fill = 'x', side = 'top')
 
-        frame = Frame(rootFrame, pady = 20, padx = 20, bg = "black")
+        frame = Frame(self.rootFrame, pady = 20, padx = 20, bg = "black")
         frame.pack(fill = 'both', expand = True)
 
-        bluemarble = Frame(frame, padx = 10,bg = "green")
-        bluemarble.pack(fill = 'both',expand = True, side = "left")
+        self.bluemarble = Frame(frame, padx = 10,bg = "green")
+        self.bluemarble.pack(fill = 'both',expand = True, side = "left")
 
         ranking = Frame(frame, pady = 10,padx = 10, bg = "white")
         ranking.pack(fill = 'both', side = "right")
 
         for i in range(playerNum):
-            self.player.append(Player(ranking, i, player_color[i]))
+            self.player.append(Player(ranking, i + 1, player_color[i]))
 
-        font = tkfont.Font()
+        self.makeBoard()
 
-        land = [[0 for col in range(10)] for row in range(10)]
 
+    def makeBoard(self):
+
+        self.land = [[0 for col in range(10)] for row in range(10)]
         for i in range(10):
             for j in range(10):
                 if (i == 0 or i == 9) or (j == 0 or j == 9):
-                    label = Label(bluemarble, text=f"{i,j}", width = 13, height = 4)
+                    label = Label(self.bluemarble, text=f"{i,j}", width = 13, height = 4)
                     label.grid(row=i, column=j, sticky=N + E + W + S)
-                    land[i][j] = label
-        # Ybtn = Button(rootFrame, text="Yes", height=2, font=font)
-        # Ybtn.pack(side="left", fill="x", expand=True, padx=10)
+                    self.land[i][j] = label
+                if (i == 0 or i == 9) and (j == 0 or j == 9):
+                    self.land[i][j].configure(bg = "orange")
 
-        Ybtn = Button(bluemarble, text="Yes", width = 13, height=4)
-        Ybtn.grid(row = 3, column = 5, sticky = N+E+W+S)
-        Nbtn = Button(rootFrame, text="No", width = 13, height=4)
-        Nbtn.grid(row = 2, column = 4, sticky = N+E+W+S)
+        Ybtn = Button(self.bluemarble, text="Yes", width = 13, height=4)
+        Ybtn.grid(row = 4, column = 3, sticky = N+E+W+S)
+
+        Nbtn = Button(self.bluemarble, text="No", width = 13, height=4)
+        Nbtn.grid(row = 4, column = 6, sticky = N+E+W+S)
 
 
 def start(playerNum):
