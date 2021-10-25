@@ -73,6 +73,7 @@ class window():
         self.player = []
 
         self.root = Tk()
+        self.root.title("Marble.py")
         self.root.resizable(False,False)
         self.root.state('zoomed')
 
@@ -107,22 +108,24 @@ class window():
         ranking = Frame(frame, pady = 10,padx = 10, bg = "white")
         ranking.pack(fill = 'both', side = "right")
 
+        topPlayer = Label(ranking, width = 50, height = 5, text = "1등")
+        topPlayer.pack()
+
         for i in range(playerNum):
             self.player.append(Player(ranking, i + 1, player_color[i]))
 
         self.makeBoard()
 
-
+    # 판 구현
     def makeBoard(self):
-
         self.land = [[0 for col in range(10)] for row in range(10)]
         for i in range(10):
             for j in range(10):
                 if (i == 0 or i == 9) or (j == 0 or j == 9):
-                    label = Label(self.bluemarble, text=f"{i,j}", width = 13, height = 4)
-                    label.grid(row=i, column=j, sticky=N + E + W + S)
-                    self.land[i][j] = label
-                if (i == 0 or i == 9) and (j == 0 or j == 9):
+                    button = Button(self.bluemarble, text=f"{i,j}", width = 13, height = 4, command = self.selectButton)
+                    button.grid(row=i, column=j, sticky=N + E + W + S)
+                    self.land[i][j] = button
+                if (i == 0 or i == 9) and (j == 0 or j == 9):   # 꼭짓점 색칠
                     self.land[i][j].configure(bg = "orange")
 
         Ybtn = Button(self.bluemarble, text="Yes", width = 13, height=4)
@@ -130,6 +133,9 @@ class window():
 
         Nbtn = Button(self.bluemarble, text="No", width = 13, height=4)
         Nbtn.grid(row = 4, column = 6, sticky = N+E+W+S)
+
+    def selectButton(self):
+        pass
 
 
 def start(playerNum):

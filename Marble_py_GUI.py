@@ -5,7 +5,7 @@ import game_screen
 class ChoosePlayerNum():
     def __init__(self):
         self.window = Tk()
-        self.window.title("Mable.pi")
+        self.window.title("Mable.py")
         self.window.resizable(False,False)
 
         startFrame = Frame(self.window)
