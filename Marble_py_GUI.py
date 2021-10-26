@@ -7,6 +7,7 @@ class ChoosePlayerNum():
         self.window = Tk()
         self.window.title("Mable.py")
         self.window.resizable(False,False)
+        self.window.state("zoomed")
 
         startFrame = Frame(self.window)
         startFrame.pack(fill = 'both')
@@ -14,6 +15,8 @@ class ChoosePlayerNum():
 
         label = Label(startFrame, text = "사람 수")
         label.pack()
+
+        frame = Frame()
 
         players = [str(i + 2) + "명" for i in range(4)]
 

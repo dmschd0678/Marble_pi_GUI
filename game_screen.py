@@ -3,9 +3,6 @@ import tkinter.font as tkfont
 import requests
 import serial
 
-height_ratio = 216
-width_ratio = 384
-
 width = 0
 height = 0
 
@@ -24,7 +21,6 @@ url = {"init" : "15.165.88.215:8080/init",
 
 class Player():
     def __init__(self, frame, text, color):
-        # requests.post(url["init"])
         self.money = 500000
         self.goldenkey = []
         self.total_assets = self.money
@@ -63,6 +59,12 @@ class Player():
 
     def key(self):
         pass
+
+    def __lt__(self, other):
+        return self.total_assets < other.total_assets
+
+    def __repr__(self):
+        return str(self.total_assets)
 
 
 class window():
@@ -137,6 +139,39 @@ class window():
     def selectButton(self):
         pass
 
+def gamePlay(screen):
+
+    cmd = serial.Serial('COM5',9600)
+    # while True:
+    #     if cmd.readable():
+    #         pass
+            # cmd = serial.Serial.readline().split()
+
+            # if cmd[0] == "":
+            #     pass
+            #
+            # elif cmd[0] == "":
+            #     pass
+            #
+            # elif cmd[0] == "":
+            #     pass
+            #
+            # elif cmd[0] == "":
+            #     pass
+            #
+            # elif cmd[0] == "":
+            #     pass
+            #
+            # elif cmd[0] == "":
+            #     pass
+
+            # topPlayer = ""
+            # for i in range(1,len(screen.player)):
+            #     if screen.player[i].total_assets > screen.player[i + 1].total_assets:
+            #         topPlayer
+
+
 
 def start(playerNum):
-    window(playerNum)
+    screen = window(playerNum)
+    gamePlay(screen)
