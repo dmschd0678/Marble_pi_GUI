@@ -6,6 +6,8 @@ import serial
 width = 0
 height = 0
 
+land = {"0,0" : "시작",}
+
 player_color = [
     "red",
     "blue",
@@ -120,14 +122,17 @@ class window():
 
     # 판 구현
     def makeBoard(self):
-        self.land = [[0 for col in range(10)] for row in range(10)]
-        for i in range(10):
-            for j in range(10):
-                if (i == 0 or i == 9) or (j == 0 or j == 9):
-                    button = Button(self.bluemarble, text=f"{i,j}", width = 13, height = 4, command = self.selectButton)
-                    button.grid(row=i, column=j, sticky=N + E + W + S)
-                    self.land[i][j] = button
-                if (i == 0 or i == 9) and (j == 0 or j == 9):   # 꼭짓점 색칠
+        self.land = [[0 for col in range(11)] for row in range(11)]
+
+        for i in range(11):
+            for j in range(11):
+
+                if (i == 0 or i == 10) or (j == 0 or j == 10):
+
+                    self.land[i][j] = Button(self.bluemarble, text=f"{i,j}", width = 13, height = 4, command = lambda x= i,y = j: self.selectButton(x,y))
+                    self.land[i][j].grid(row=i, column=j, sticky=N + E + W + S)
+
+                if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 색칠
                     self.land[i][j].configure(bg = "orange")
 
         Ybtn = Button(self.bluemarble, text="Yes", width = 13, height=4)
@@ -136,42 +141,17 @@ class window():
         Nbtn = Button(self.bluemarble, text="No", width = 13, height=4)
         Nbtn.grid(row = 4, column = 6, sticky = N+E+W+S)
 
-    def selectButton(self):
-        pass
+    def selectButton(self,x,y):
+        print(x,y)
 
 def gamePlay(screen):
 
-    cmd = serial.Serial('COM5',9600)
-    # while True:
-    #     if cmd.readable():
-    #         pass
-            # cmd = serial.Serial.readline().split()
-
-            # if cmd[0] == "":
-            #     pass
-            #
-            # elif cmd[0] == "":
-            #     pass
-            #
-            # elif cmd[0] == "":
-            #     pass
-            #
-            # elif cmd[0] == "":
-            #     pass
-            #
-            # elif cmd[0] == "":
-            #     pass
-            #
-            # elif cmd[0] == "":
-            #     pass
-
-            # topPlayer = ""
-            # for i in range(1,len(screen.player)):
-            #     if screen.player[i].total_assets > screen.player[i + 1].total_assets:
-            #         topPlayer
-
+    ser = serial.Serial('COM5',9600)
+    while True:
+        if ser.readable():
+            diceNum = ser.readline()
 
 
 def start(playerNum):
     screen = window(playerNum)
-    gamePlay(screen)
+    # gamePlay(screen)
