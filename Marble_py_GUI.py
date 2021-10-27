@@ -18,7 +18,7 @@ class ChoosePlayerNum():
 
         frame = Frame()
 
-        players = [str(i + 2) + "명" for i in range(4)]
+        players = [str(i + 2) + "명" for i in range(3)]
 
         self.combobox = ttk.Combobox(startFrame, height = 3,values = players, state = "readonly", width = 30)
         self.combobox.current(0)

@@ -2,9 +2,11 @@ from tkinter import *
 import tkinter.font as tkfont
 import requests
 import serial
+from PIL import ImageTk,Image
 
 width = 0
 height = 0
+
 
 map = {"0,0" : "시작", "0,1" : "taipei", "0,2" : "황금열쇠", "0,3" : "beijing", "0,4" : "manila", "0,5" : "jeju_island", "0,6" : "singapore", "0,7" : "황금열쇠", "0,8" : "cairo", "0,9" : "istanbul", "0,10" : "무인도",
         "1,0" : "seoul", "1,10" : "athens",
@@ -146,15 +148,14 @@ class window():
                 if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 색칠
                     self.land[i][j].configure(bg = "orange")
 
-        image = PhotoImage(master=self.bluemarble, file = "Mable_py.png")
-        centerLogo = Label(self.bluemarble, image = image)
-        centerLogo.grid(row = 2, column = 2, rowspan = 8, columnspan = 8)
-
         # Ybtn = Button(self.bluemarble, text="Yes", width = 13, height=4)
         # Ybtn.grid(row = 4, column = 3, sticky = N+E+W+S)
         #
         # Nbtn = Button(self.bluemarble, text="No", width = 13, height=4)
         # Nbtn.grid(row = 4, column = 6, sticky = N+E+W+S)
+
+        image = PhotoImage(file = "images/Mable_py.png", master=self.root)
+        label = Label(self.bluemarble, image = image).grid(row = 2, column = 2)
 
     def selectButton(self,x,y):
         print(x,y)
@@ -177,13 +178,17 @@ def gamePlay(screen):
 
             if req[0] == 0:
                 if req[1] + diceNum > 10:
-                    pass
+                    y = (req[0] + diceNum) % 10
+                    destination = [y,10]
                 else:
-                    destination = [0,req[1] + diceNum]
+                    destination = [0, req[1] + diceNum]
 
 
             elif req[0] == 10:
-                pass
+                if req[1] + diceNum < 0:
+                    y = (req[0])
+                else:
+                    destination = [10, req[1] - diceNum]
 
             elif req[0] != 0 and req[1] == 10:
                 pass
