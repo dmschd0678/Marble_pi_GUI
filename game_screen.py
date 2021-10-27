@@ -177,24 +177,33 @@ def gamePlay(screen):
             destination = 0
 
             if req[0] == 0:
-                if req[1] + diceNum > 10:
-                    y = (req[0] + diceNum) % 10
+                if req[1] + diceNum > 10:       # ->↓
+                    y = (req[1] + diceNum) % 10
                     destination = [y,10]
-                else:
+                else:   # ->
                     destination = [0, req[1] + diceNum]
 
 
             elif req[0] == 10:
-                if req[1] + diceNum < 0:
-                    y = (req[0])
-                else:
+                if req[1] + diceNum < 0:    # ↑<-       왼이
+                    y = req[1] + abs(req[0] - diceNum)
+                    destination[y, 0]
+                else:               # <-
                     destination = [10, req[1] - diceNum]
 
             elif req[0] != 0 and req[1] == 10:
-                pass
+                if req[0] + diceNum > 10: # <- ↓
+                    x = 10 - ((req[0] + diceNum) % 10)
+                    destination = [10, x]
+                else:                       # ↓
+                    destination = [req[0] + diceNum, 10]
 
             elif req[0] != 10 and req[1] == 0:
-                pass
+                if req[0] - diceNum < 0:             # ↑ ->
+                    x = abs(req[0] - diceNum)
+                    destination[0,x]
+                else:                               # ↑
+                    destination[req[0] - diceNum, 0]
             serial.Serial.write(destination)
 
 
