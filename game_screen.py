@@ -8,17 +8,17 @@ width = 0
 height = 0
 
 
-map = {"0,0" : "시작", "0,1" : "taipei", "0,2" : "황금열쇠", "0,3" : "beijing", "0,4" : "manila", "0,5" : "jeju_island", "0,6" : "singapore", "0,7" : "황금열쇠", "0,8" : "cairo", "0,9" : "istanbul", "0,10" : "무인도",
-        "1,0" : "seoul", "1,10" : "athens",
+map = {"0,0" : "시작", "0,1" : "타이베이", "0,2" : "황금열쇠", "0,3" : "베이징", "0,4" : "마닐라", "0,5" : "제주도", "0,6" : "싱가포르", "0,7" : "황금열쇠", "0,8" : "카이로", "0,9" : "이스탄불", "0,10" : "무인도",
+        "1,0" : "서울", "1,10" : "아테네",
         "2,0" : "사회복지기금", "2,10" : "황금열쇠",
-        "3,0" : "newyork", "3,10" : "copenhagen",
-        "4,0" : "london", "4,10" : "stockholm",
-        "5,0" : "황금열쇠", "5,10" : "concorde",
-        "6,0" : "rome", "6,10" : "bern",
-        "7,0" : "paris", "7,10" : "황금열쇠",
-        "8,0" : "columbia", "8,10" : "berlin",
-        "9,0" : "tokyo", "9,10" : "ottawa",
-        "10,0" : "우주 여행", "10,1" : "madrid", "10,2" : "queen_elizabeth", "10,3" : "lisbon", "10,4" : "hawaii", "10,5" : "busan", "10,6" : "sydney", "10,7" : "sao_paulo", "10,8" : "황금열쇠", "10,9" : "buenosaires", "10,10" : "사회 복지 기금"
+        "3,0" : "뉴욕", "3,10" : "코펜하겐",
+        "4,0" : "런던", "4,10" : "스톡홀롬",
+        "5,0" : "황금열쇠", "5,10" : "콩코드여객기",
+        "6,0" : "로마", "6,10" : "베른",
+        "7,0" : "파리", "7,10" : "황금열쇠",
+        "8,0" : "컬럼비아호", "8,10" : "베를린",
+        "9,0" : "도쿄", "9,10" : "오타와",
+        "10,0" : "우주 여행", "10,1" : "마드리드", "10,2" : "퀸 엘리자베스", "10,3" : "리스본", "10,4" : "하와이", "10,5" : "부산", "10,6" : "시드니", "10,7" : "상파울루", "10,8" : "황금열쇠", "10,9" : "부에노스\n아이레스", "10,10" : "사회복지기금\n접수처"
        }
 
 player_color = [
@@ -113,9 +113,6 @@ class window():
         self.rootFrame = Frame(self.root)
         self.rootFrame.pack(expand = True, fill = 'both', ipady = 10)
 
-        logo = Label(self.rootFrame, text = "Marble.py", font = font, height = 4)
-        logo.pack(fill = 'x', side = 'top')
-
         frame = Frame(self.rootFrame, pady = 20, padx = 20, bg = "black")
         frame.pack(fill = 'both', expand = True)
 
@@ -131,7 +128,11 @@ class window():
         for i in range(playerNum):
             self.player.append(Player(ranking, i + 1, player_color[i]))
 
+        image = PhotoImage(file="images/Mable_py.png", master=self.root)
+        label = Label(self.bluemarble, image=image).grid(row=2, column=2, rowspan = 7, columnspan = 7)
+
         self.makeBoard()
+        self.root.mainloop(-1)
 
     # 판 구현
     def makeBoard(self):
@@ -142,7 +143,7 @@ class window():
 
                 if (i == 0 or i == 10) or (j == 0 or j == 10):
 
-                    self.land[i][j] = Button(self.bluemarble, text=f"{i,j}", width = 13, height = 4, command = lambda x= i,y = j: self.selectButton(x,y))
+                    self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 16, height = 5, command = lambda x= i,y = j: self.selectButton(x,y))
                     self.land[i][j].grid(row=i, column=j, sticky=N + E + W + S)
 
                 if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 색칠
@@ -154,8 +155,7 @@ class window():
         # Nbtn = Button(self.bluemarble, text="No", width = 13, height=4)
         # Nbtn.grid(row = 4, column = 6, sticky = N+E+W+S)
 
-        image = PhotoImage(file = "images/Mable_py.png", master=self.root)
-        label = Label(self.bluemarble, image = image).grid(row = 2, column = 2)
+
 
     def selectButton(self,x,y):
         print(x,y)
