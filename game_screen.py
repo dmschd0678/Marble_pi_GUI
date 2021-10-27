@@ -6,7 +6,18 @@ import serial
 width = 0
 height = 0
 
-land = {"0,0" : "시작",}
+map = {"0,0" : "시작", "0,1" : "taipei", "0,2" : "황금열쇠", "0,3" : "beijing", "0,4" : "manila", "0,5" : "jeju_island", "0,6" : "singapore", "0,7" : "황금열쇠", "0,8" : "cairo", "0,9" : "istanbul", "0,10" : "무인도",
+        "1,0" : "seoul", "1,10" : "athens",
+        "2,0" : "사회복지기금", "2,10" : "황금열쇠",
+        "3,0" : "newyork", "3,10" : "copenhagen",
+        "4,0" : "london", "4,10" : "stockholm",
+        "5,0" : "황금열쇠", "5,10" : "concorde",
+        "6,0" : "rome", "6,10" : "bern",
+        "7,0" : "paris", "7,10" : "황금열쇠",
+        "8,0" : "columbia", "8,10" : "berlin",
+        "9,0" : "tokyo", "9,10" : "ottawa",
+        "10,0" : "우주 여행", "10,1" : "madrid", "10,2" : "queen_elizabeth", "10,3" : "lisbon", "10,4" : "hawaii", "10,5" : "busan", "10,6" : "sydney", "10,7" : "sao_paulo", "10,8" : "황금열쇠", "10,9" : "buenosaires", "10,10" : "사회 복지 기금"
+       }
 
 player_color = [
     "red",
@@ -106,7 +117,7 @@ class window():
         frame = Frame(self.rootFrame, pady = 20, padx = 20, bg = "black")
         frame.pack(fill = 'both', expand = True)
 
-        self.bluemarble = Frame(frame, padx = 10,bg = "green")
+        self.bluemarble = Frame(frame, padx = 10)
         self.bluemarble.pack(fill = 'both',expand = True, side = "left")
 
         ranking = Frame(frame, pady = 10,padx = 10, bg = "white")
@@ -135,11 +146,15 @@ class window():
                 if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 색칠
                     self.land[i][j].configure(bg = "orange")
 
-        Ybtn = Button(self.bluemarble, text="Yes", width = 13, height=4)
-        Ybtn.grid(row = 4, column = 3, sticky = N+E+W+S)
+        image = PhotoImage(master=self.bluemarble, file = "Mable_py.png")
+        centerLogo = Label(self.bluemarble, image = image)
+        centerLogo.grid(row = 2, column = 2, rowspan = 8, columnspan = 8)
 
-        Nbtn = Button(self.bluemarble, text="No", width = 13, height=4)
-        Nbtn.grid(row = 4, column = 6, sticky = N+E+W+S)
+        # Ybtn = Button(self.bluemarble, text="Yes", width = 13, height=4)
+        # Ybtn.grid(row = 4, column = 3, sticky = N+E+W+S)
+        #
+        # Nbtn = Button(self.bluemarble, text="No", width = 13, height=4)
+        # Nbtn.grid(row = 4, column = 6, sticky = N+E+W+S)
 
     def selectButton(self,x,y):
         print(x,y)
@@ -149,7 +164,37 @@ def gamePlay(screen):
     ser = serial.Serial('COM5',9600)
     while True:
         if ser.readable():
-            diceNum = ser.readline()
+            diceNum = ser.readline().split()
+
+            req = requests.get("")
+
+            req = [0,8]
+            diceNum = 6
+
+            startingPoint = req
+
+            destination = 0
+
+            if req[0] == 0:
+                if req[1] + diceNum > 10:
+                    pass
+                else:
+                    destination = [0,req[1] + diceNum]
+
+
+            elif req[0] == 10:
+                pass
+
+            elif req[0] != 0 and req[1] == 10:
+                pass
+
+            elif req[0] != 10 and req[1] == 0:
+                pass
+            serial.Serial.write(destination)
+
+
+
+
 
 
 def start(playerNum):
