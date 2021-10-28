@@ -30,8 +30,9 @@ class ChoosePlayerNum():
         self.window.mainloop()
 
     def create_window(self):
-        game_screen.start(int(self.combobox.get().replace("명", "")))
+        playerNumber = int(self.combobox.get().replace("명", ""))
         self.window.destroy()
+        game_screen.start(playerNumber)
 
 if __name__ == '__main__':
     choosePlayer = ChoosePlayerNum()

@@ -2,7 +2,6 @@ from tkinter import *
 import tkinter.font as tkfont
 import requests
 import serial
-from PIL import ImageTk,Image
 
 width = 0
 height = 0
@@ -132,7 +131,8 @@ class window():
         label = Label(self.bluemarble, image=image).grid(row=2, column=2, rowspan = 7, columnspan = 7)
 
         self.makeBoard()
-        self.root.mainloop(-1)
+
+        self.root.mainloop()
 
     # 판 구현
     def makeBoard(self):
@@ -162,16 +162,18 @@ class window():
 
 def gamePlay(screen):
 
+    print("A")
+
     ser = serial.Serial('COM5',9600)
     while True:
         if ser.readable():
-            diceNum = ser.readline().split()
+
+            # 플레이어와 주사위 값 받아오기
+            player, diceNum = ser.readline().split()
 
             req = requests.get("")
 
-            req = [0,8]
-            diceNum = 6
-
+            # 현재 위치 받아오기
             startingPoint = req
 
             destination = 0
@@ -199,12 +201,34 @@ def gamePlay(screen):
                     destination = [req[0] + diceNum, 10]
 
             elif req[0] != 10 and req[1] == 0:
-                if req[0] - diceNum < 0:             # ↑ ->
+                if req[0] - diceNum < 0:             # ↑ -> + 월급
                     x = abs(req[0] - diceNum)
                     destination[0,x]
+
                 else:                               # ↑
                     destination[req[0] - diceNum, 0]
+
             serial.Serial.write(destination)
+
+            y,x = enumerate(destination)
+
+            if map[f"{y},{x}"] == "황금열쇠":
+                pass
+            elif map[f"{y},{x}"] == "사회복지기금":
+                pass
+            elif map[f"{y},{x}"] == "사회복지기금 접수처":
+                pass
+            elif map[f"{y},{x}"] == "우주여행":
+                pass
+            elif map[f"{y},{x}"] == "무인도":
+                pass
+            else:           # 땅을 나라를 밟았을 때
+                pass
+
+
+            if screen.player[player].total_assets == 0:
+                req = requests.get()    # 플레이어의 모든 땅 갖고 오기
+                ser.write(f"B {player}")
 
 
 
@@ -213,4 +237,4 @@ def gamePlay(screen):
 
 def start(playerNum):
     screen = window(playerNum)
-    # gamePlay(screen)
+    gamePlay(screen)
