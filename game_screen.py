@@ -75,7 +75,7 @@ class Player():
         pass
 
     def update(self):
-
+        pass
 
 
 class window():
