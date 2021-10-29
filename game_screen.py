@@ -45,13 +45,13 @@ class Player():
         Name =Label(playerFrame,text = text, width = 40, bg = color, font = tkfont.Font(size = 20))
         Name.pack(side = "top", fill = 'x')
 
-        moneyInfo = Label(playerFrame,text = "돈 : " + self.moneyStr(self.money))
-        moneyInfo.pack(fill = 'x')
+        self.moneyInfo = Label(playerFrame,text = "돈 : " + self.moneyStr(self.money))
+        self.moneyInfo.pack(fill = 'x')
 
-        total_assetsInfo = Label(playerFrame, text = "총 자산 : " + self.moneyStr(self.total_assets))
-        total_assetsInfo.pack(fill = 'x')
+        self.total_assetsInfo = Label(playerFrame, text = "총 자산 : " + self.moneyStr(self.total_assets))
+        self.total_assetsInfo.pack(fill = 'x')
 
-        goldenKeyInfo = Label(playerFrame, text = self.goldenKeyStr(self.goldenkey))
+        self.goldenKeyInfo = Label(playerFrame, text = self.goldenKeyStr(self.goldenkey))
 
     def moneyStr(self, money):
         return f"{money // 10000}만" + ("원" if money % 10000 == 0 else str(money % 10000) + "원")
@@ -74,11 +74,8 @@ class Player():
     def key(self):
         pass
 
-    def __lt__(self, other):
-        return self.total_assets < other.total_assets
+    def update(self):
 
-    def __repr__(self):
-        return str(self.total_assets)
 
 
 class window():
@@ -169,7 +166,7 @@ def gamePlay(screen):
         if ser.readable():
 
             # 플레이어와 주사위 값 받아오기
-            player, diceNum = ser.readline().split()
+            playerNum, diceNum = ser.readline().split()
 
             req = requests.get("")
 
@@ -210,7 +207,7 @@ def gamePlay(screen):
 
             serial.Serial.write(destination)
 
-            y,x = enumerate(destination)
+            y,x = destination
 
             if map[f"{y},{x}"] == "황금열쇠":
                 pass
@@ -222,13 +219,14 @@ def gamePlay(screen):
                 pass
             elif map[f"{y},{x}"] == "무인도":
                 pass
-            else:           # 땅을 나라를 밟았을 때
-                pass
+            else:           # 나라를 밟았을 때
+                if 1 > 0:
+                    screen.player[playerNum].money -=
 
 
-            if screen.player[player].total_assets == 0:
+            if screen.player[playerNum].total_assets == 0:
                 req = requests.get()    # 플레이어의 모든 땅 갖고 오기
-                ser.write(f"B {player}")
+                ser.write(f"B {playerNum}")
 
 
 
