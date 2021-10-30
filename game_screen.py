@@ -51,31 +51,29 @@ class Player():
         self.total_assetsInfo = Label(playerFrame, text = "총 자산 : " + self.moneyStr(self.total_assets))
         self.total_assetsInfo.pack(fill = 'x')
 
-        self.goldenKeyInfo = Label(playerFrame, text = self.goldenKeyStr(self.goldenkey))
+        self.goldenKeyInfo = Label(playerFrame, text = "황금열쇠 : " + self.goldenKeyStr(self.goldenkey))
+        self.goldenKeyInfo.pack(fill = 'x')
 
     def moneyStr(self, money):
         return f"{money // 10000}만" + ("원" if money % 10000 == 0 else str(money % 10000) + "원")
 
     def goldenKeyStr(self,goldenKey):
-        pass
+        string = ""
+        for i in goldenKey:
+            string += i + " "
+        return string
 
-    def buy(self):
-        pass
-
-    def toll(self):
-        pass
-
-    def move(self):
-        pass
-
-    def upgrade(self):
-        pass
+    def cost(self, money):
+        self.money -= money
+        self.update()
 
     def key(self):
         pass
 
     def update(self):
-        pass
+        self.moneyInfo.configure(text = "돈 : " + self.moneyStr(self.money))
+        self.total_assetsInfo.configure(text = "총 자산 : " + self.moneyStr(self.total_assets))
+        self.goldenKeyInfo.configure(text = "")
 
 
 class window():
@@ -212,7 +210,7 @@ def gamePlay(screen):
             if map[f"{y},{x}"] == "황금열쇠":
                 pass
             elif map[f"{y},{x}"] == "사회복지기금":
-                pass
+                screen.player[playerNum].cost(requests.get())
             elif map[f"{y},{x}"] == "사회복지기금 접수처":
                 pass
             elif map[f"{y},{x}"] == "우주여행":
@@ -221,8 +219,7 @@ def gamePlay(screen):
                 pass
             else:           # 나라를 밟았을 때
                 if 1 > 0:
-                    screen.player[playerNum].money -=
-
+                    screen.player[playerNum].money -= requests.get()
 
             if screen.player[playerNum].total_assets == 0:
                 req = requests.get()    # 플레이어의 모든 땅 갖고 오기
