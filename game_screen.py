@@ -33,6 +33,8 @@ url = {"init" : "15.165.88.215:8080/init",
        "key"  : "15.165.88.215:8080/key",
        "upgrade" : "15.165.88.215:8080/area/upgrade?user_id={}"}
 
+mapImages = ["images/Start.png","images/Island.png","images/Fund.png","images/SpaceTravel.png"]
+
 fund = 0
 
 class Player():
@@ -128,7 +130,7 @@ class window():
         for i in range(playerNum):
             self.player.append(Player(ranking, i + 1, player_color[i]))
 
-        image = PhotoImage(file="images/Mable_py.png", master=self.root)
+        image = PhotoImage(file="images/Mable_py.png", master=self.bluemarble)
         label = Label(self.bluemarble, image=image).grid(row=2, column=2, rowspan = 7, columnspan = 7)
 
         self.makeBoard()
@@ -139,28 +141,25 @@ class window():
     def makeBoard(self):
         self.land = [[0 for col in range(11)] for row in range(11)]
 
+        index = 0
+
         for i in range(11):
             for j in range(11):
 
                 if (i == 0 or i == 10) or (j == 0 or j == 10):
 
                     self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 16, height = 5, command = lambda y = i,x = j: self.selectButton(y,x))
+
+                    if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 색칠
+                        image = PhotoImage(file= mapImages[index])
+                        self.land[i][j].configure(image = image)
+                        index += 1
                     self.land[i][j].grid(row=i, column=j, sticky=N + E + W + S)
-
-                if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 색칠
-                    self.land[i][j].configure(bg = "orange")
-
-        # Ybtn = Button(self.bluemarble, text="Yes", width = 13, height=4)
-        # Ybtn.grid(row = 4, column = 3, sticky = N+E+W+S)
-        #
-        # Nbtn = Button(self.bluemarble, text="No", width = 13, height=4)
-        # Nbtn.grid(row = 4, column = 6, sticky = N+E+W+S)
-
-
 
     def selectButton(self,y,x):
         self.spaceToLand.append(y)
         self.spaceToLand.append(x)
+        print(y,x)
 
 def gamePlay(screen):
 
@@ -249,4 +248,4 @@ def gamePlay(screen):
 
 def start(playerNum):
     screen = window(playerNum)
-    gamePlay(screen)
+    # gamePlay(screen)
