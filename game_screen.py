@@ -33,11 +33,15 @@ url = {"init" : "15.165.88.215:8080/init",
        "key"  : "15.165.88.215:8080/key",
        "upgrade" : "15.165.88.215:8080/area/upgrade?user_id={}"}
 
+fund = 0
+
 class Player():
     def __init__(self, frame, text, color):
         self.money = 500000
         self.goldenkey = []
         self.total_assets = self.money
+        self.island = 0
+        self.spaceTravel = False
 
         playerFrame = LabelFrame(frame, width = 50, height = 5)
         playerFrame.pack(side = "top", padx = 10, pady = 10, ipady = 20, expand = True)
@@ -67,8 +71,8 @@ class Player():
         self.money -= money
         self.update()
 
-    def key(self):
-        pass
+    def key(self, G_key):
+        self.goldenkey.append(G_key)
 
     def update(self):
         self.moneyInfo.configure(text = "돈 : " + self.moneyStr(self.money))
@@ -87,6 +91,8 @@ class window():
         self.root.title("Marble.py")
         self.root.resizable(False,False)
         self.root.state('zoomed')
+
+        self.spaceToLand = []
 
         width = self.root.winfo_screenwidth()
         height = self.root.winfo_screenheight()
@@ -138,7 +144,7 @@ class window():
 
                 if (i == 0 or i == 10) or (j == 0 or j == 10):
 
-                    self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 16, height = 5, command = lambda x= i,y = j: self.selectButton(x,y))
+                    self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 16, height = 5, command = lambda y = i,x = j: self.selectButton(y,x))
                     self.land[i][j].grid(row=i, column=j, sticky=N + E + W + S)
 
                 if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 색칠
@@ -152,8 +158,9 @@ class window():
 
 
 
-    def selectButton(self,x,y):
-        print(x,y)
+    def selectButton(self,y,x):
+        self.spaceToLand.append(y)
+        self.spaceToLand.append(x)
 
 def gamePlay(screen):
 
@@ -209,21 +216,31 @@ def gamePlay(screen):
 
             if map[f"{y},{x}"] == "황금열쇠":
                 pass
+
             elif map[f"{y},{x}"] == "사회복지기금":
-                screen.player[playerNum].cost(requests.get())
+                screen.player[playerNum].cost(1000)
+                fund += 1000
+
             elif map[f"{y},{x}"] == "사회복지기금 접수처":
-                pass
+                screen.player[playerNum].money += fund
+                fund = 0
+
             elif map[f"{y},{x}"] == "우주여행":
-                pass
+                screen.player[playerNum].spaceTravel = True
+
             elif map[f"{y},{x}"] == "무인도":
-                pass
+                screen.player[playerNum].island = 3
+
             else:           # 나라를 밟았을 때
-                if 1 > 0:
+                if 1 > 0:   # 주인 O
                     screen.player[playerNum].money -= requests.get()
+                else:       # 주인 X
+                    pass
 
             if screen.player[playerNum].total_assets == 0:
                 req = requests.get()    # 플레이어의 모든 땅 갖고 오기
                 ser.write(f"B {playerNum}")
+                # screen.player[]
 
 
 
