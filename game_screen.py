@@ -190,12 +190,7 @@ def gamePlay(screen):
         if ser.readable():
 
             # 플레이어와 주사위 값 받아오기
-            playerNum, diceNum = ser.readline().split()
-
-            req = requests.get("")
-
-            # 현재 위치 받아오기
-            startingPoint = req
+            diceNum = ser.readline()
 
             destination = 0
 
