@@ -20,11 +20,13 @@ map = {"0,0" : "시작", "0,1" : "타이베이", "0,2" : "황금열쇠", "0,3" :
         "10,0" : "우주 여행", "10,1" : "마드리드", "10,2" : "퀸 엘리자베스", "10,3" : "리스본", "10,4" : "하와이", "10,5" : "부산", "10,6" : "시드니", "10,7" : "상파울루", "10,8" : "황금열쇠", "10,9" : "부에노스\n아이레스", "10,10" : "사회복지기금\n접수처"
        }
 
+bg_color = '#EBF4FD'
+
 player_color = [
-    "red",
-    "blue",
-    "yellow",
-    "white"
+    "#FF5A5A",
+    "#5A88FF",
+    "#FFD15A",
+    "#63D868"
 ]
 
 url = {"init" : "15.165.88.215:8080/init",
@@ -33,32 +35,44 @@ url = {"init" : "15.165.88.215:8080/init",
        "key"  : "15.165.88.215:8080/key",
        "upgrade" : "15.165.88.215:8080/area/upgrade?user_id={}"}
 
-mapImages = ["images/Start.png","images/Island.png","images/Fund.png","images/SpaceTravel.png"]
+mapImages = ["images/Start.png","images/Island.png","images/SpaceTravel.png","images/Fund.png"]
+
+player_names = ["Emma","Arthur","Dorothy","Martin"]
 
 fund = 0
 
 class Player():
-    def __init__(self, frame, text, color):
+    def __init__(self, frame, name, color):
         self.money = 500000
         self.goldenkey = []
         self.total_assets = self.money
         self.island = 0
         self.spaceTravel = False
 
-        playerFrame = LabelFrame(frame, width = 50, height = 5)
-        playerFrame.pack(side = "top", padx = 10, pady = 10, ipady = 20, expand = True)
+        self.location = [0,0]
 
-        Name =Label(playerFrame,text = text, width = 40, bg = color, font = tkfont.Font(size = 20))
-        Name.pack(side = "top", fill = 'x')
+        font = tkfont.Font(size = 20)
 
-        self.moneyInfo = Label(playerFrame,text = "돈 : " + self.moneyStr(self.money))
-        self.moneyInfo.pack(fill = 'x')
+        playerFrame = LabelFrame(frame, borderwidth = 3, width = 350, height = 100, bg = "white")
+        playerFrame.pack(side="top", padx=10,ipady = 10, expand=True)
+        playerFrame.pack_propagate(0)
 
-        self.total_assetsInfo = Label(playerFrame, text = "총 자산 : " + self.moneyStr(self.total_assets))
-        self.total_assetsInfo.pack(fill = 'x')
+        NameFrame = Frame(playerFrame, bg = 'white')
+        NameFrame.pack(side = "top", fill = 'x', expand = True)
 
-        self.goldenKeyInfo = Label(playerFrame, text = "황금열쇠 : " + self.goldenKeyStr(self.goldenkey))
-        self.goldenKeyInfo.pack(fill = 'x')
+        Name = Label(NameFrame, text = name, bg = color, font = font)
+        Name.pack(side="top", anchor = NW)
+
+        font = tkfont.Font(size = 15)
+
+        self.moneyInfo = Label(playerFrame,text = "돈 : " + self.moneyStr(self.money), font = font, bg = 'white')
+        self.moneyInfo.pack(side="top", anchor = NW)
+
+        self.total_assetsInfo = Label(playerFrame, text = "총 자산 : " + self.moneyStr(self.total_assets), font = font, bg = 'white')
+        self.total_assetsInfo.pack(side="top", anchor = NW)
+
+        self.goldenKeyInfo = Label(playerFrame, text = "황금열쇠 : " + self.goldenKeyStr(self.goldenkey), font = font, bg = 'white')
+        self.goldenKeyInfo.pack(side="top", anchor = NW)
 
     def moneyStr(self, money):
         return f"{money // 10000}만" + ("원" if money % 10000 == 0 else str(money % 10000) + "원")
@@ -102,36 +116,28 @@ class window():
         print(width)
         print(height)
 
-        # 노트북 화면 크기
-        # width = 1536
-        # height = 864
-
-        # 모니터 화면 크기
-        # width = 1920
-        # height = 1080
-
         font = tkfont.Font(size = 30)
 
         self.rootFrame = Frame(self.root)
         self.rootFrame.pack(expand = True, fill = 'both', ipady = 10)
 
-        frame = Frame(self.rootFrame, pady = 20, padx = 20, bg = "black")
+        frame = Frame(self.rootFrame, pady = 60, padx = 20, bg = bg_color)
         frame.pack(fill = 'both', expand = True)
 
-        self.bluemarble = Frame(frame, padx = 10)
+        self.bluemarble = Frame(frame, padx = 10, bg = bg_color)
         self.bluemarble.pack(fill = 'both',expand = True, side = "left")
 
-        ranking = Frame(frame, pady = 10,padx = 10, bg = "white")
+        ranking = Frame(frame, pady = 10,padx = 10, bg = bg_color)
         ranking.pack(fill = 'both', side = "right")
 
-        topPlayer = Label(ranking, width = 50, height = 5, text = "1등")
+        topPlayer = Label(ranking, width = 17, height = 5, text = "1등", bg = 'white')
         topPlayer.pack()
 
-        for i in range(playerNum):
-            self.player.append(Player(ranking, i + 1, player_color[i]))
+        for i in range(4):
+            self.player.append(Player(ranking, player_names[i], player_color[i]))
 
         image = PhotoImage(file="images/Mable_py.png", master=self.bluemarble)
-        label = Label(self.bluemarble, image=image).grid(row=2, column=2, rowspan = 7, columnspan = 7)
+        label = Label(self.bluemarble, image=image, bg = bg_color).grid(row=2, column=2, rowspan = 7, columnspan = 7)
 
         self.makeBoard()
 
@@ -148,13 +154,27 @@ class window():
 
                 if (i == 0 or i == 10) or (j == 0 or j == 10):
 
-                    self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 16, height = 5, command = lambda y = i,x = j: self.selectButton(y,x))
+                    self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 17, height = 5, command = lambda y = i,x = j: self.selectButton(y,x),borderwidth = 1)
 
-                    if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 색칠
+                    if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 이미지 적용
                         image = PhotoImage(file= mapImages[index])
-                        self.land[i][j].configure(image = image)
+                        print(mapImages[index], 'i : ', i, ' j : ' ,j)
+                        self.land[i][j].configure(image = image, borderwidth = 0, bg = bg_color)
+                        self.land[i][j].image = image
                         index += 1
+
+                    if i == 2 and j == 0:                           # 사회 복지금 접수처 이미지 적용
+                        image = PhotoImage(file = "images/Funding.png")
+                        self.land[i][j].configure(image=image, borderwidth=0, bg=bg_color)
+                        self.land[i][j].image = image
+
+                    if map[f"{i},{j}"] == "황금열쇠":
+                        image = PhotoImage(file="images/Golden_Key.png")
+                        self.land[i][j].configure(image=image, borderwidth=0, bg=bg_color)
+                        self.land[i][j].image = image
                     self.land[i][j].grid(row=i, column=j, sticky=N + E + W + S)
+
+        Label(self.bluemarble, width = 17, height = 5, bg = bg_color).grid(row = 2, column = 2) # 찌그러짐 방지
 
     def selectButton(self,y,x):
         self.spaceToLand.append(y)
