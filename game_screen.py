@@ -3,6 +3,7 @@ import tkinter.font as tkfont
 import requests
 import serial
 import showGoldenKey
+from collections import deque
 
 width = 0
 height = 0
@@ -38,6 +39,8 @@ url = {"init" : "15.165.88.215:8080/init",
 mapImages = ["images/Start.png","images/Island.png","images/SpaceTravel.png","images/Fund.png"]
 
 player_names = ["Emma","Arthur","Dorothy","Martin"]
+
+sequence = []   # 순서 list
 
 fund = 0
 
@@ -103,7 +106,7 @@ class Player():
 class window():
     def __init__(self, playerNum):
 
-        global width,height
+        global width,height, sequence
 
         self.player = []
 
@@ -150,6 +153,8 @@ class window():
         for i in range(playerNum):                      # 플레이어 객체
             self.player.append(Player(ranking, player_names[i], player_color[i]))
 
+        sequence = deque(range(playerNum))
+
         image = PhotoImage(file="images/Mable_py.png", master=self.bluemarble)          # Marble.py 이미지 판 중간
         label = Label(self.bluemarble, image=image, bg = bg_color).grid(row=2, column=2, rowspan = 7, columnspan = 7)
 
@@ -195,12 +200,17 @@ class window():
         print(y,x)
 
 def gamePlay(screen):
-
+    global sequence
     ser = serial.Serial('COM5',9600)
     
     while True:
         if ser.readable():
+            playerNum = sequence[0]
 
+            if screen.player[playerNum].island > 0:
+                continue
+            elif screen.player[playerNum].spaceTravel:
+                pass
             # 플레이어와 주사위 값 받아오기
             diceNum = ser.readline()
 
@@ -242,8 +252,12 @@ def gamePlay(screen):
             screen.player[playerNum].location = destination
 
             if map[f"{y},{x}"] == "황금열쇠":
-                requests.get()
+                req = requests.get()
                 Storage = showGoldenKey.showGoldenKey(1,"","","")
+                if Storage:
+                    screen.player[playerNum].goldenKey.append(req[0])
+                else:
+                    pass
 
             elif map[f"{y},{x}"] == "사회복지기금":
                 screen.player[playerNum].cost(1000)
@@ -269,6 +283,10 @@ def gamePlay(screen):
                 screen.player[playerNum].location = requests.get()    # 플레이어의 모든 땅 갖고 오기
                 ser.write(f"B {playerNum}")
                 screen.player[playerNum].bankruptcy()
+
+                sequence.remove(playerNum)
+            else:
+                sequence.append(sequence.popleft())
 
 
 

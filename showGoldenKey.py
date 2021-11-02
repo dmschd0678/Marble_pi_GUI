@@ -42,7 +42,7 @@ def showGoldenKey(keyNum, name, content, type):
     KeyName = Label(frame, text = "    " + name + "    ", bg = "#C4C4C4",fg = "white", font = font)
     KeyName.pack(side = "top")
 
-    image = PhotoImage(file="goldenKeyImages/우대권.png")
+    image = PhotoImage(file="goldenKeyImages/{}.png".format(name))
     KeyImage = Label(frame, bg = bg_color)
     KeyImage.configure(image=image, borderwidth=0)
     KeyImage.image = image
@@ -72,4 +72,3 @@ def showGoldenKey(keyNum, name, content, type):
 
 if __name__ == "__main__":
     showGoldenKey(1,"우대권","테스트용 황금열쇠 입니다.", "MOVE")
-
