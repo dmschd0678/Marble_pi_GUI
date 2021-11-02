@@ -2,10 +2,10 @@ from tkinter import *
 import tkinter.font as tkfont
 import requests
 import serial
+import showGoldenKey
 
 width = 0
 height = 0
-
 
 map = {"0,0" : "시작", "0,1" : "타이베이", "0,2" : "황금열쇠", "0,3" : "베이징", "0,4" : "마닐라", "0,5" : "제주도", "0,6" : "싱가포르", "0,7" : "황금열쇠", "0,8" : "카이로", "0,9" : "이스탄불", "0,10" : "무인도",
         "1,0" : "서울", "1,10" : "아테네",
@@ -46,32 +46,33 @@ class Player():
         self.money = 500000
         self.goldenkey = []
         self.total_assets = self.money
-        self.island = 0
+
+        self.island_turn = 0
         self.spaceTravel = False
 
         self.location = [0,0]
 
         font = tkfont.Font(size = 20)
 
-        playerFrame = LabelFrame(frame, borderwidth = 3, width = 350, height = 100, bg = "white")
-        playerFrame.pack(side="top", padx=10,ipady = 10, expand=True)
-        playerFrame.pack_propagate(0)
+        self.playerFrame = LabelFrame(frame, borderwidth = 3, width = 350, height = 100, bg = "white")
+        self.playerFrame.pack(side="top", padx=10,ipady = 10, expand=True)
+        self.playerFrame.pack_propagate(0)
 
-        NameFrame = Frame(playerFrame, bg = 'white')
+        NameFrame = Frame(self.playerFrame, bg = 'white')
         NameFrame.pack(side = "top", fill = 'x', expand = True)
 
-        Name = Label(NameFrame, text = name, bg = color, font = font)
+        Name = Label(NameFrame, text = name, bg = color, font = font, fg = "white")
         Name.pack(side="top", anchor = NW)
 
         font = tkfont.Font(size = 15)
 
-        self.moneyInfo = Label(playerFrame,text = "돈 : " + self.moneyStr(self.money), font = font, bg = 'white')
+        self.moneyInfo = Label(self.playerFrame,text = "보유 마블   : " + self.moneyStr(self.money), font = font, bg = 'white', fg = color)
         self.moneyInfo.pack(side="top", anchor = NW)
 
-        self.total_assetsInfo = Label(playerFrame, text = "총 자산 : " + self.moneyStr(self.total_assets), font = font, bg = 'white')
+        self.total_assetsInfo = Label(self.playerFrame, text = "총 자산      : " + self.moneyStr(self.total_assets), font = font, bg = 'white', fg = color)
         self.total_assetsInfo.pack(side="top", anchor = NW)
 
-        self.goldenKeyInfo = Label(playerFrame, text = "황금열쇠 : " + self.goldenKeyStr(self.goldenkey), font = font, bg = 'white')
+        self.goldenKeyInfo = Label(self.playerFrame, text = "황금열쇠    : " + self.goldenKeyStr(self.goldenkey), font = font, bg = 'white', fg = color)
         self.goldenKeyInfo.pack(side="top", anchor = NW)
 
     def moneyStr(self, money):
@@ -94,6 +95,9 @@ class Player():
         self.moneyInfo.configure(text = "돈 : " + self.moneyStr(self.money))
         self.total_assetsInfo.configure(text = "총 자산 : " + self.moneyStr(self.total_assets))
         self.goldenKeyInfo.configure(text = "")
+
+    def bankruptcy(self):
+        self.playerFrame.destroy()
 
 
 class window():
@@ -127,16 +131,26 @@ class window():
         self.bluemarble = Frame(frame, padx = 10, bg = bg_color)
         self.bluemarble.pack(fill = 'both',expand = True, side = "left")
 
-        ranking = Frame(frame, pady = 10,padx = 10, bg = bg_color)
+        ranking = Frame(frame, pady = 10,padx = 10, bg = bg_color, width = 400, height = 700)
         ranking.pack(fill = 'both', side = "right")
+        ranking.pack_propagate(0)
 
-        topPlayer = Label(ranking, width = 17, height = 5, text = "1등", bg = 'white')
-        topPlayer.pack()
+        rankingFrame = Frame(ranking, bg = bg_color)
+        rankingFrame.pack(side = "top", fill = "x")
 
-        for i in range(4):
+        image = PhotoImage(file="images/FirstPlayer.png")
+        topPlayer = Label(rankingFrame, image = image, height = 70, width = 150, bg = bg_color)
+        # topPlayer.configure(image=image, borderwidth=0)
+        topPlayer.image = image
+        topPlayer.pack(side = "left")
+
+        topPlayerName = Label(rankingFrame, text = "Test", font = font, bg = bg_color)
+        topPlayerName.pack()
+
+        for i in range(playerNum):                      # 플레이어 객체
             self.player.append(Player(ranking, player_names[i], player_color[i]))
 
-        image = PhotoImage(file="images/Mable_py.png", master=self.bluemarble)
+        image = PhotoImage(file="images/Mable_py.png", master=self.bluemarble)          # Marble.py 이미지 판 중간
         label = Label(self.bluemarble, image=image, bg = bg_color).grid(row=2, column=2, rowspan = 7, columnspan = 7)
 
         self.makeBoard()
@@ -158,7 +172,6 @@ class window():
 
                     if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 이미지 적용
                         image = PhotoImage(file= mapImages[index])
-                        print(mapImages[index], 'i : ', i, ' j : ' ,j)
                         self.land[i][j].configure(image = image, borderwidth = 0, bg = bg_color)
                         self.land[i][j].image = image
                         index += 1
@@ -183,53 +196,54 @@ class window():
 
 def gamePlay(screen):
 
-    print("A")
-
     ser = serial.Serial('COM5',9600)
+    
     while True:
         if ser.readable():
 
             # 플레이어와 주사위 값 받아오기
             diceNum = ser.readline()
 
-            destination = 0
+            destination = []
 
-            if req[0] == 0:
-                if req[1] + diceNum > 10:       # ->↓
-                    y = (req[1] + diceNum) % 10
+            if screen.player[playerNum].location[0] == 0:
+                if screen.player[playerNum].location[1] + diceNum > 10:       # ->↓
+                    y = (screen.player[playerNum].location[1] + diceNum) % 10
                     destination = [y,10]
                 else:   # ->
-                    destination = [0, req[1] + diceNum]
+                    destination = [0, screen.player[playerNum].location[1] + diceNum]
 
 
-            elif req[0] == 10:
-                if req[1] + diceNum < 0:    # ↑<-       왼이
-                    y = req[1] + abs(req[0] - diceNum)
+            elif screen.player[playerNum].location[0] == 10:
+                if screen.player[playerNum].location[1] + diceNum < 0:    # ↑<-       왼이
+                    y = screen.player[playerNum].location[1] + abs(screen.player[playerNum].location[0] - diceNum)
                     destination[y, 0]
                 else:               # <-
-                    destination = [10, req[1] - diceNum]
+                    destination = [10, screen.player[playerNum].location[1] - diceNum]
 
-            elif req[0] != 0 and req[1] == 10:
-                if req[0] + diceNum > 10: # <- ↓
-                    x = 10 - ((req[0] + diceNum) % 10)
+            elif screen.player[playerNum].location[0] != 0 and screen.player[playerNum].location[1] == 10:
+                if screen.player[playerNum].location[0] + diceNum > 10: # <- ↓
+                    x = 10 - ((screen.player[playerNum].location[0] + diceNum) % 10)
                     destination = [10, x]
                 else:                       # ↓
-                    destination = [req[0] + diceNum, 10]
+                    destination = [screen.player[playerNum].location[0] + diceNum, 10]
 
-            elif req[0] != 10 and req[1] == 0:
-                if req[0] - diceNum < 0:             # ↑ -> + 월급
-                    x = abs(req[0] - diceNum)
+            elif screen.player[playerNum].location[0] != 10 and screen.player[playerNum].location[1] == 0:
+                if screen.player[playerNum].location[0] - diceNum < 0:             # ↑ -> + 월급
+                    x = abs(screen.player[playerNum].location[0] - diceNum)
                     destination[0,x]
 
                 else:                               # ↑
-                    destination[req[0] - diceNum, 0]
+                    destination[screen.player[playerNum].location[0] - diceNum, 0]
 
             serial.Serial.write(destination)
 
             y,x = destination
+            screen.player[playerNum].location = destination
 
             if map[f"{y},{x}"] == "황금열쇠":
-                pass
+                requests.get()
+                Storage = showGoldenKey.showGoldenKey(1,"","","")
 
             elif map[f"{y},{x}"] == "사회복지기금":
                 screen.player[playerNum].cost(1000)
@@ -251,13 +265,10 @@ def gamePlay(screen):
                 else:       # 주인 X
                     pass
 
-            if screen.player[playerNum].total_assets == 0:
-                req = requests.get()    # 플레이어의 모든 땅 갖고 오기
+            if screen.player[playerNum].money < 0:      # 파산
+                screen.player[playerNum].location = requests.get()    # 플레이어의 모든 땅 갖고 오기
                 ser.write(f"B {playerNum}")
-                # screen.player[]
-
-
-
+                screen.player[playerNum].bankruptcy()
 
 
 
