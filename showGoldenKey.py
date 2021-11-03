@@ -3,7 +3,7 @@ import tkinter.font as tkfont
 
 bg_color = "#B85D5D"
 
-isStorage = False
+isStorage = False   # 보관할 지 말 지 변수 False = 버리기, True = 보관
 
 def yesButton(root):
     global isStorage
@@ -56,10 +56,14 @@ def showGoldenKey(keyNum, name, content, type):
     buttonFrame.pack(side = "bottom", pady = 10)
 
     if name == "우대권" or name == "무인도 탈출":
-        yesBtn = Button(buttonFrame, text="보관하기", font=font, fg="white", bg = "#FFD43A",command = lambda : yesButton(root))
+        image = PhotoImage(file="goldenKeyImages/keeping.png")
+        yesBtn = Button(buttonFrame, command = lambda : yesButton(root), image = image, bg = bg_color, borderwidth=0, activebackground= bg_color)
+        yesBtn.image = image
         yesBtn.pack(side="right", padx=10)
 
-        noBtn = Button(buttonFrame, text="버리기", font = font, fg = "white", bg = "#7BD0FF", command = lambda : noButton(root))
+        image = PhotoImage(file="goldenKeyImages/throw.png")
+        noBtn = Button(buttonFrame, command = lambda : noButton(root), image = image, bg = bg_color, borderwidth=0, activebackground= bg_color)
+        noBtn.image = image
         noBtn.pack(side = "left", padx = 10)
 
     else:

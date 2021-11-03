@@ -4,6 +4,7 @@ import requests
 import serial
 import showGoldenKey
 from collections import deque
+import threading
 
 width = 0
 height = 0
@@ -42,8 +43,13 @@ player_names = ["Emma","Arthur","Dorothy","Martin"]
 
 sequence = []   # 순서 list
 
-fund = 0
+fund = 0            # 사회 복지금 모인 것
+fund_cost = 10000   # 사회 복지금 내는 단위
 
+spaceDestination = []   # 우주 여행 도착지
+
+
+# 플레이어 클래스
 class Player():
     def __init__(self, frame, name, color):
         self.money = 500000
@@ -78,30 +84,38 @@ class Player():
         self.goldenKeyInfo = Label(self.playerFrame, text = "황금열쇠    : " + self.goldenKeyStr(self.goldenkey), font = font, bg = 'white', fg = color)
         self.goldenKeyInfo.pack(side="top", anchor = NW)
 
+    # 돈 출력 형식
     def moneyStr(self, money):
         return f"{money // 10000}만" + ("원" if money % 10000 == 0 else str(money % 10000) + "원")
 
+    # 황금열쇠 출력 형식
     def goldenKeyStr(self,goldenKey):
         string = ""
         for i in goldenKey:
             string += i + " "
         return string
 
+    # 비용 지불
     def cost(self, money):
         self.money -= money
         self.update()
 
+    # 보관되는 황금열쇠
     def key(self, G_key):
         self.goldenkey.append(G_key)
 
+    # 정보 갱신
     def update(self):
         self.moneyInfo.configure(text = "돈 : " + self.moneyStr(self.money))
         self.total_assetsInfo.configure(text = "총 자산 : " + self.moneyStr(self.total_assets))
         self.goldenKeyInfo.configure(text = "")
 
+    # 파산
     def bankruptcy(self):
         self.playerFrame.destroy()
 
+
+# 판 구현
 
 class window():
     def __init__(self, playerNum):
@@ -115,8 +129,6 @@ class window():
         self.root.resizable(False,False)
         self.root.state('zoomed')
 
-        self.spaceToLand = []
-
         width = self.root.winfo_screenwidth()
         height = self.root.winfo_screenheight()
 
@@ -125,13 +137,13 @@ class window():
 
         font = tkfont.Font(size = 30)
 
-        self.rootFrame = Frame(self.root)
+        self.rootFrame = Frame(self.root, bg = bg_color)
         self.rootFrame.pack(expand = True, fill = 'both', ipady = 10)
 
-        frame = Frame(self.rootFrame, pady = 60, padx = 20, bg = bg_color)
-        frame.pack(fill = 'both', expand = True)
+        frame = Frame(self.rootFrame, bg = bg_color)
+        frame.pack(fill = 'both', expand = True, pady = 40, padx = 20)
 
-        self.bluemarble = Frame(frame, padx = 10, bg = bg_color)
+        self.bluemarble = Frame(frame, bg = bg_color)
         self.bluemarble.pack(fill = 'both',expand = True, side = "left")
 
         ranking = Frame(frame, pady = 10,padx = 10, bg = bg_color, width = 400, height = 700)
@@ -160,20 +172,20 @@ class window():
 
         self.makeBoard()
 
-        self.root.mainloop()
-
     # 판 구현
     def makeBoard(self):
         self.land = [[0 for col in range(11)] for row in range(11)]
 
         index = 0
 
+        landcnt = 1
+
         for i in range(11):
             for j in range(11):
 
                 if (i == 0 or i == 10) or (j == 0 or j == 10):
 
-                    self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 17, height = 5, command = lambda y = i,x = j: self.selectButton(y,x),borderwidth = 1)
+                    self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 130, height = 85, command = lambda y = i,x = j: self.selectButton(y,x), activebackground= bg_color)
 
                     if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 이미지 적용
                         image = PhotoImage(file= mapImages[index])
@@ -181,40 +193,66 @@ class window():
                         self.land[i][j].image = image
                         index += 1
 
-                    if i == 2 and j == 0:                           # 사회 복지금 접수처 이미지 적용
+                    elif i == 2 and j == 0:                           # 사회 복지금 접수처 이미지 적용
                         image = PhotoImage(file = "images/Funding.png")
                         self.land[i][j].configure(image=image, borderwidth=0, bg=bg_color)
                         self.land[i][j].image = image
 
-                    if map[f"{i},{j}"] == "황금열쇠":
+                    elif map[f"{i},{j}"] == "황금열쇠":                 # 황금 열쇠 이미지 적용
                         image = PhotoImage(file="images/Golden_Key.png")
+                        self.land[i][j].configure(image=image, borderwidth=0, bg=bg_color)
+                        self.land[i][j].image = image
+
+                    else:                                               # 나라 이미지 적용
+                        image = PhotoImage(file = "landImage/none_{}.png".format(landcnt))
+                        landcnt += 1
                         self.land[i][j].configure(image=image, borderwidth=0, bg=bg_color)
                         self.land[i][j].image = image
                     self.land[i][j].grid(row=i, column=j, sticky=N + E + W + S)
 
-        Label(self.bluemarble, width = 17, height = 5, bg = bg_color).grid(row = 2, column = 2) # 찌그러짐 방지
+        t = threading.Thread(target=gamePlay, args=(self,))
+        t.start()
+        self.root.mainloop()
+        t.join()
 
     def selectButton(self,y,x):
-        self.spaceToLand.append(y)
-        self.spaceToLand.append(x)
-        print(y,x)
+        global spaceDestination
 
+        spaceDestination = [y, x]
+        print(spaceDestination)
+
+# 게임 플레이
 def gamePlay(screen):
-    global sequence
-    ser = serial.Serial('COM5',9600)
+    print("check")
+    global sequence, spaceDestination
+    # ser = serial.Serial('COM5',9600)
     
     while True:
-        if ser.readable():
-            playerNum = sequence[0]
+        playerNum = sequence[0]
+
+        if screen.player[playerNum].spaceTravel:
+
+            spaceDestination = [-1,-1]
+
+            while True:
+                if spaceDestination[0] != -1 and spaceDestination[1] != -1:
+                    break
+
+            print("여행 실행")
+            screen.player[playerNum].spaceTravel = False
+
+        elif ser.readable():
 
             if screen.player[playerNum].island > 0:
+                screen.player[playerNum].island -= 1
                 continue
-            elif screen.player[playerNum].spaceTravel:
-                pass
             # 플레이어와 주사위 값 받아오기
             diceNum = ser.readline()
 
             destination = []
+
+
+            # 이동할 위치 계산
 
             if screen.player[playerNum].location[0] == 0:
                 if screen.player[playerNum].location[1] + diceNum > 10:       # ->↓
@@ -225,7 +263,7 @@ def gamePlay(screen):
 
 
             elif screen.player[playerNum].location[0] == 10:
-                if screen.player[playerNum].location[1] + diceNum < 0:    # ↑<-       왼이
+                if screen.player[playerNum].location[1] + diceNum < 0:    # ↑<-
                     y = screen.player[playerNum].location[1] + abs(screen.player[playerNum].location[0] - diceNum)
                     destination[y, 0]
                 else:               # <-
@@ -241,7 +279,7 @@ def gamePlay(screen):
             elif screen.player[playerNum].location[0] != 10 and screen.player[playerNum].location[1] == 0:
                 if screen.player[playerNum].location[0] - diceNum < 0:             # ↑ -> + 월급
                     x = abs(screen.player[playerNum].location[0] - diceNum)
-                    destination[0,x]
+                    destination = [0,x]
 
                 else:                               # ↑
                     destination[screen.player[playerNum].location[0] - diceNum, 0]
@@ -251,17 +289,20 @@ def gamePlay(screen):
             y,x = destination
             screen.player[playerNum].location = destination
 
+
+            # 이동 후 기능
+
             if map[f"{y},{x}"] == "황금열쇠":
                 req = requests.get()
-                Storage = showGoldenKey.showGoldenKey(1,"","","")
+                Storage = showGoldenKey.showGoldenKey(1,"","","")               # --------------------------------------------------------------------
                 if Storage:
                     screen.player[playerNum].goldenKey.append(req[0])
                 else:
                     pass
 
             elif map[f"{y},{x}"] == "사회복지기금":
-                screen.player[playerNum].cost(1000)
-                fund += 1000
+                screen.player[playerNum].cost(fund_cost)
+                fund += fund_cost
 
             elif map[f"{y},{x}"] == "사회복지기금 접수처":
                 screen.player[playerNum].money += fund
@@ -274,22 +315,26 @@ def gamePlay(screen):
                 screen.player[playerNum].island = 3
 
             else:           # 나라를 밟았을 때
-                if 1 > 0:   # 주인 O
-                    screen.player[playerNum].money -= requests.get()
-                else:       # 주인 X
+                if 1 > 0:   # 주인이 있을 때
+                    if 1 > 0: # 내가 주인 일 때
+                        pass
+
+                    else:
+                        screen.player[playerNum].money -= requests.get()
+                else:       # 주인이 없을 때
                     pass
 
-            if screen.player[playerNum].money < 0:      # 파산
-                screen.player[playerNum].location = requests.get()    # 플레이어의 모든 땅 갖고 오기
-                ser.write(f"B {playerNum}")
-                screen.player[playerNum].bankruptcy()
+        if screen.player[playerNum].money < 0:      # 파산
+            screen.player[playerNum].location = requests.get()    # 플레이어의 모든 땅 갖고 오기
+            ser.write(f"B {playerNum}")
+            screen.player[playerNum].bankruptcy()
 
-                sequence.remove(playerNum)
-            else:
-                sequence.append(sequence.popleft())
+            sequence.remove(playerNum)
+        else:
+            sequence.append(sequence.popleft())
+    screen.root.mainloop()
 
 
 
 def start(playerNum):
     screen = window(playerNum)
-    # gamePlay(screen)
