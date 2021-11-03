@@ -204,7 +204,7 @@ class window():
                         self.land[i][j].image = image
 
                     else:                                               # 나라 이미지 적용
-                        image = PhotoImage(file = "landImage/none_{}.png".format(landcnt))
+                        image = PhotoImage(file = "noneLand/none_{}.png".format(landcnt))
                         landcnt += 1
                         self.land[i][j].configure(image=image, borderwidth=0, bg=bg_color)
                         self.land[i][j].image = image
