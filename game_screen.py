@@ -2,6 +2,7 @@ from tkinter import *
 import tkinter.font as tkfont
 import requests
 import serial
+import buyLand
 import showGoldenKey
 from collections import deque
 import threading
@@ -100,6 +101,13 @@ class Player():
     # 비용 지불
     def cost(self, money):
         self.money -= money
+        self.total_assets -= money
+        self.update()
+
+    # 돈 얻음
+    def addMoney(self, money):
+        self.money += money
+        self.total_assets += money
         self.update()
 
     # 보관되는 황금열쇠
@@ -110,7 +118,7 @@ class Player():
     def update(self):
         self.moneyInfo.configure(text = "돈 : " + self.moneyStr(self.money))
         self.total_assetsInfo.configure(text = "총 자산 : " + self.moneyStr(self.total_assets))
-        self.goldenKeyInfo.configure(text = "")
+        self.goldenKeyInfo.configure(text = "황금열쇠    : " + self.goldenKeyStr(self.goldenkey))
 
     # 파산
     def bankruptcy(self):
@@ -153,22 +161,18 @@ class window():
         ranking.pack(fill = 'both', side = "right")
         ranking.pack_propagate(0)
 
-        rankingFrame = Frame(ranking, width = 400, height = 70, bg = "red")
-        rankingFrame.pack(side = "top", ipady = 5)
-        rankingFrame.pack_propagate(0)
+        rankingFrame = Frame(ranking)
+        rankingFrame.pack(side = "top")
 
-        image = PhotoImage(file="images/FirstPlayer.png")
-        topPlayer = Label(rankingFrame, image = image, height = 70, width = 70, bg = "white")
-        topPlayer.image = image
-        topPlayer.pack(side = "left")
-
-        self.topPlayerName = Label(rankingFrame, text = "Test", font = font, bg = "white")
+        image = PhotoImage(file = "FirstPlayer/0.png")
+        self.topPlayerName = Label(rankingFrame, image = image)
+        self.topPlayerName.image = image
         self.topPlayerName.pack()
 
         for i in range(playerNum):                      # 플레이어 객체
             self.player.append(Player(ranking, player_names[i], player_color[i]))
 
-        sequence = deque(range(playerNum))
+        sequence = deque(range(1, playerNum + 1))
 
         image = PhotoImage(file="images/Mable_py.png", master=self.bluemarble)          # Marble.py 이미지 판 중간
         label = Label(self.bluemarble, image=image, bg = bg_color).grid(row=2, column=2, rowspan = 7, columnspan = 7)
@@ -238,8 +242,9 @@ def gamePlay(screen):
 
         index = assets.index(max(assets))
 
-        screen.topPlayerName.configure(fg = player_color[index], text = screen.player[index].name)
-
+        image = PhotoImage(file = "FirstPlayer/{}.png".format(index))
+        screen.topPlayerName.configure(fg = player_color[index], image = image)
+        screen.topPlayerName.image = image
 
         playerNum = sequence[0]
 
@@ -284,7 +289,7 @@ def gamePlay(screen):
             elif screen.player[playerNum].location[0] == 10:
                 if screen.player[playerNum].location[1] + diceNum < 0:    # ↑<-
                     y = screen.player[playerNum].location[1] + abs(screen.player[playerNum].location[0] - diceNum)
-                    destination[y, 0]
+                    destination = [y, 0]
                 else:               # <-
                     destination = [10, screen.player[playerNum].location[1] - diceNum]
 
@@ -299,9 +304,10 @@ def gamePlay(screen):
                 if screen.player[playerNum].location[0] - diceNum < 0:             # ↑ -> + 월급
                     x = abs(screen.player[playerNum].location[0] - diceNum)
                     destination = [0,x]
+                    screen.player[playerNum].addMoney(20000)
 
                 else:                               # ↑
-                    destination[screen.player[playerNum].location[0] - diceNum, 0]
+                    destination = [screen.player[playerNum].location[0] - diceNum, 0]
 
             serial.Serial.write(destination)
 
@@ -335,21 +341,42 @@ def gamePlay(screen):
 
             else:           # 나라를 밟았을 때
 
-                if 1 > 0:   # 주인이 있을 때
+                if 1 < 0:   # 주인이 있을 때
 
-                    if 1 > 0: # 내가 주인 일 때
+                    if 1 < 0: # 내가 주인 일 때
                         pass
 
                     else:
+                        cost = requests.get()       # ------------------------------------------------------------
+
                         if screen.player[playerNum].goldenKey in "우대권":
-                            pass
-                        else:
-                            screen.player[playerNum].money -= requests.get()
-                else:       # 주인이 없을 때
-                    pass
+                            useKey.useKey("우대권", cost)
+                        elif screen.player[playerNum].money >= cost:
+                            screen.player[playerNum].money -= cost
+
+                else:       #주인이 없을 때
+                    cost = requests.get()       # ------------------------------------------------------------------
+
+                    if buyLand.buyLand(map[f"{y},{x}"], 0, cost) and screen.player[playerNum].money >= cost:
+                        screen.player[playerNum].money -= cost
+
+                        color = ""
+
+                        if playerNum == 0:
+                            color = "red"
+                        elif playerNum == 1:
+                            color = "blue"
+                        elif playerNum == 2:
+                            color = "yellow"
+                        elif playerNum == 3:
+                            color = "green"
+
+                        image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
+                        screen.land[y][x].configure(image = image)
+
 
         if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기
-            screen.player[playerNum].location = requests.get()    # 플레이어의 모든 땅 갖고 오기
+            screen.player[playerNum].location = requests.get()    # 플레이어의 모든 땅 갖고 오기    # ---------------------------------------
             ser.write(f"B {playerNum}")
             screen.player[playerNum].bankruptcy()
 

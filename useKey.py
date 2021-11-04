@@ -5,13 +5,13 @@ bg_color = "#B85D5D"
 
 is_use = False
 
-def yesBtnClicked(window):
+def yesButton(window):
     global is_use
     is_use = True
 
     window.destroy()
 
-def noBtnClicked(window):
+def noButton(window):
     global is_use
     is_use = False
 
@@ -64,12 +64,12 @@ def useKey(name, *args):
         word.configure(text="무인도 탈출권을\n사용하시겠습니까?")
 
     image = PhotoImage(file = "key_func/cancel.png")
-    noBtn = Button(frame, image = image, bg = bg_color, borderwidth=0, activebackground= bg_color, command = lambda : noBtnClicked(root))
+    noBtn = Button(frame, image = image, bg = bg_color, borderwidth=0, activebackground= bg_color, command = lambda : noButton(root))
     noBtn.image = image
     noBtn.pack(side = "left", padx = 34)
 
     image = PhotoImage(file = "key_func/use.png")
-    yesBtn = Button(frame, image = image, bg = bg_color, borderwidth=0, activebackground= bg_color, command = lambda : yesBtnClicked(root))
+    yesBtn = Button(frame, image = image, bg = bg_color, borderwidth=0, activebackground= bg_color, command = lambda : yesButton(root))
     yesBtn.image = image
     yesBtn.pack(side = "right", padx = 34)
 
