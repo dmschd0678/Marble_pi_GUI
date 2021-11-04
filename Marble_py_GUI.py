@@ -4,9 +4,17 @@ import game_screen
 
 class ChoosePlayerNum():
     def __init__(self):
+
+        w = 300
+        h = 100
+
+        x = (1920 - w) // 2
+        y = (1080 - h) // 2
+
         self.window = Tk()
         self.window.title("Mable.py")
         self.window.resizable(False,False)
+        self.window.geometry("{}x{}+{}+{}".format(w,h,x,y))
 
         startFrame = Frame(self.window)
         startFrame.pack(fill = 'both')

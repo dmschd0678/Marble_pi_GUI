@@ -33,13 +33,13 @@ def showGoldenKey(keyNum, name, content, type):
 
     font = tkfont.Font(size=20, family = "malgun gothic")
 
-    boarder = Frame(root,padx = 10, pady = 10, bg = "#C4C4C4")
+    boarder = Frame(root,padx = 10, pady = 10, bg = "#FFD15A")
     boarder.pack(fill = "both", expand = True)
 
     frame = Frame(boarder, bg = bg_color, pady = 10)
     frame.pack(fill = "both", expand = True)
 
-    KeyName = Label(frame, text = "    " + name + "    ", bg = "#C4C4C4",fg = "white", font = font)
+    KeyName = Label(frame, text = "    " + name + "    ", bg = "#FFD15A",fg = "white", font = font)
     KeyName.pack(side = "top")
 
     image = PhotoImage(file="goldenKeyImages/{}.png".format(name))

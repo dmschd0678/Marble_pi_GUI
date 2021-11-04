@@ -5,6 +5,7 @@ import serial
 import showGoldenKey
 from collections import deque
 import threading
+import useKey
 
 width = 0
 height = 0
@@ -52,6 +53,7 @@ spaceDestination = []   # 우주 여행 도착지
 # 플레이어 클래스
 class Player():
     def __init__(self, frame, name, color):
+        self.name = name
         self.money = 500000
         self.goldenkey = []
         self.total_assets = self.money
@@ -119,7 +121,6 @@ class Player():
 
 class window():
     def __init__(self, playerNum):
-
         global width,height, sequence
 
         self.player = []
@@ -131,6 +132,8 @@ class window():
 
         width = self.root.winfo_screenwidth()
         height = self.root.winfo_screenheight()
+
+        self.playerNum = playerNum
 
         print(width)
         print(height)
@@ -150,17 +153,17 @@ class window():
         ranking.pack(fill = 'both', side = "right")
         ranking.pack_propagate(0)
 
-        rankingFrame = Frame(ranking, bg = bg_color)
-        rankingFrame.pack(side = "top", fill = "x")
+        rankingFrame = Frame(ranking, width = 400, height = 70, bg = "red")
+        rankingFrame.pack(side = "top", ipady = 5)
+        rankingFrame.pack_propagate(0)
 
         image = PhotoImage(file="images/FirstPlayer.png")
-        topPlayer = Label(rankingFrame, image = image, height = 70, width = 150, bg = bg_color)
-        # topPlayer.configure(image=image, borderwidth=0)
+        topPlayer = Label(rankingFrame, image = image, height = 70, width = 70, bg = "white")
         topPlayer.image = image
         topPlayer.pack(side = "left")
 
-        topPlayerName = Label(rankingFrame, text = "Test", font = font, bg = bg_color)
-        topPlayerName.pack()
+        self.topPlayerName = Label(rankingFrame, text = "Test", font = font, bg = "white")
+        self.topPlayerName.pack()
 
         for i in range(playerNum):                      # 플레이어 객체
             self.player.append(Player(ranking, player_names[i], player_color[i]))
@@ -224,10 +227,20 @@ class window():
 # 게임 플레이
 def gamePlay(screen):
     print("check")
+
     global sequence, spaceDestination
     # ser = serial.Serial('COM5',9600)
     
     while True:
+
+        # 1등 플레이어
+        assets = [i.total_assets for i in screen.player]
+
+        index = assets.index(max(assets))
+
+        screen.topPlayerName.configure(fg = player_color[index], text = screen.player[index].name)
+
+
         playerNum = sequence[0]
 
         if screen.player[playerNum].spaceTravel:
@@ -244,16 +257,22 @@ def gamePlay(screen):
         elif ser.readable():
 
             if screen.player[playerNum].island > 0:
-                screen.player[playerNum].island -= 1
-                continue
-            # 플레이어와 주사위 값 받아오기
+                if screen.player[playerNum].goldenKey in "무인도 탈출":
+                    if useKey.useKey("무인도 탈출"):
+                        screen.player[playerNum].island = 0
+                    else:
+                        screen.player[playerNum].island -= 1
+                        continue
+                else:
+                    screen.player[playerNum].island -= 1
+                    continue
+
+            # 주사위 값 받아오기
             diceNum = ser.readline()
 
             destination = []
 
-
             # 이동할 위치 계산
-
             if screen.player[playerNum].location[0] == 0:
                 if screen.player[playerNum].location[1] + diceNum > 10:       # ->↓
                     y = (screen.player[playerNum].location[1] + diceNum) % 10
@@ -315,16 +334,21 @@ def gamePlay(screen):
                 screen.player[playerNum].island = 3
 
             else:           # 나라를 밟았을 때
+
                 if 1 > 0:   # 주인이 있을 때
+
                     if 1 > 0: # 내가 주인 일 때
                         pass
 
                     else:
-                        screen.player[playerNum].money -= requests.get()
+                        if screen.player[playerNum].goldenKey in "우대권":
+                            pass
+                        else:
+                            screen.player[playerNum].money -= requests.get()
                 else:       # 주인이 없을 때
                     pass
 
-        if screen.player[playerNum].money < 0:      # 파산
+        if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기
             screen.player[playerNum].location = requests.get()    # 플레이어의 모든 땅 갖고 오기
             ser.write(f"B {playerNum}")
             screen.player[playerNum].bankruptcy()
@@ -332,9 +356,6 @@ def gamePlay(screen):
             sequence.remove(playerNum)
         else:
             sequence.append(sequence.popleft())
-    screen.root.mainloop()
-
-
 
 def start(playerNum):
-    screen = window(playerNum)
+    window(playerNum)
