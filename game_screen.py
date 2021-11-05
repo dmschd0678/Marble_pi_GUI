@@ -33,11 +33,11 @@ player_color = [
     "#63D868"
 ]
 
-url = {"init" : "15.165.88.215:8080/init",
-       "toll" : "15.165.88.215:8080/player/toll?userID={}&cityID={}&usingShield={}",
-       "buy"  : "15.165.88.215:8080/area/buy?userID={}&cityID={}",
-       "key"  : "15.165.88.215:8080/key",
-       "upgrade" : "15.165.88.215:8080/area/upgrade?user_id={}"}
+url = {"init" : "http://15.165.88.215:8888/init",
+       "toll" : "http://15.165.88.215:8080/player/toll?userID={}&cityID={}&usingShield={}",
+       "buy"  : "http://15.165.88.215:8080/area/buy?userID={}&cityID={}",
+       "key"  : "http://15.165.88.215:8080/key",
+       "upgrade" : "http://15.165.88.215:8080/area/upgrade?user_id={}"}
 
 mapImages = ["images/Start.png","images/Island.png","images/SpaceTravel.png","images/Fund.png"]
 
@@ -233,8 +233,10 @@ def gamePlay(screen):
     print("check")
 
     global sequence, spaceDestination
-    # ser = serial.Serial('COM5',9600)
-    
+    ser = serial.Serial('COM5',9600)
+
+    requests.post(url["init"])              # 서버 초기화
+
     while True:
 
         # 1등 플레이어
@@ -315,64 +317,64 @@ def gamePlay(screen):
             screen.player[playerNum].location = destination
 
 
-            # 이동 후 기능
+        # 이동 후 기능
 
-            if map[f"{y},{x}"] == "황금열쇠":
-                req = requests.get()
-                Storage = showGoldenKey.showGoldenKey(1,"","","")               # --------------------------------------------------------------------
-                if Storage:
-                    screen.player[playerNum].goldenKey.append(req[0])
-                else:
+        if map[f"{y},{x}"] == "황금열쇠":
+            req = requests.get()
+            Storage = showGoldenKey.showGoldenKey(1,"","","")               # --------------------------------------------------------------------
+            if Storage:
+                screen.player[playerNum].goldenKey.append(req[0])
+            else:
+                pass
+
+        elif map[f"{y},{x}"] == "사회복지기금":
+            screen.player[playerNum].cost(fund_cost)
+            fund += fund_cost
+
+        elif map[f"{y},{x}"] == "사회복지기금 접수처":
+            screen.player[playerNum].money += fund
+            fund = 0
+
+        elif map[f"{y},{x}"] == "우주여행":
+            screen.player[playerNum].spaceTravel = True
+
+        elif map[f"{y},{x}"] == "무인도":
+            screen.player[playerNum].island = 3
+
+        else:           # 나라를 밟았을 때
+
+            if playerNum == "   ":   # 주인이 있을 때
+
+                if player_names == "": # 내가 주인 일 때
                     pass
 
-            elif map[f"{y},{x}"] == "사회복지기금":
-                screen.player[playerNum].cost(fund_cost)
-                fund += fund_cost
+                else:
+                    cost = requests.get()       # ------------------------------------------------------------
 
-            elif map[f"{y},{x}"] == "사회복지기금 접수처":
-                screen.player[playerNum].money += fund
-                fund = 0
+                    if screen.player[playerNum].goldenKey in "우대권":
+                        useKey.useKey("우대권", cost)
+                    elif screen.player[playerNum].money >= cost:
+                        screen.player[playerNum].cost(cost)
 
-            elif map[f"{y},{x}"] == "우주여행":
-                screen.player[playerNum].spaceTravel = True
+            else:       #주인이 없을 때
+                cost = requests.get()       # ------------------------------------------------------------------
 
-            elif map[f"{y},{x}"] == "무인도":
-                screen.player[playerNum].island = 3
+                if buyLand.buyLand(map[f"{y},{x}"], 0, cost) and screen.player[playerNum].money >= cost:
+                    screen.player[playerNum].money -= cost
 
-            else:           # 나라를 밟았을 때
+                    color = ""
 
-                if 1 < 0:   # 주인이 있을 때
+                    if playerNum == 0:
+                        color = "red"
+                    elif playerNum == 1:
+                        color = "blue"
+                    elif playerNum == 2:
+                        color = "yellow"
+                    elif playerNum == 3:
+                        color = "green"
 
-                    if 1 < 0: # 내가 주인 일 때
-                        pass
-
-                    else:
-                        cost = requests.get()       # ------------------------------------------------------------
-
-                        if screen.player[playerNum].goldenKey in "우대권":
-                            useKey.useKey("우대권", cost)
-                        elif screen.player[playerNum].money >= cost:
-                            screen.player[playerNum].money -= cost
-
-                else:       #주인이 없을 때
-                    cost = requests.get()       # ------------------------------------------------------------------
-
-                    if buyLand.buyLand(map[f"{y},{x}"], 0, cost) and screen.player[playerNum].money >= cost:
-                        screen.player[playerNum].money -= cost
-
-                        color = ""
-
-                        if playerNum == 0:
-                            color = "red"
-                        elif playerNum == 1:
-                            color = "blue"
-                        elif playerNum == 2:
-                            color = "yellow"
-                        elif playerNum == 3:
-                            color = "green"
-
-                        image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
-                        screen.land[y][x].configure(image = image)
+                    image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
+                    screen.land[y][x].configure(image = image)
 
 
         if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기

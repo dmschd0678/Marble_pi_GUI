@@ -1,3 +1,7 @@
-import useKey
+import requests
 
-print(useKey.useKey("무인도 탈출"))
+req = requests.post("http://15.165.88.215:8888/init")
+print(req.text)
+
+req = requests.get("http://15.165.88.215:8888/key/1")
+print(req.text)
