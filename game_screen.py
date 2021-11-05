@@ -136,7 +136,7 @@ class window():
         self.root = Tk()
         self.root.title("Marble.py")
         self.root.resizable(False,False)
-        self.root.state('zoomed')
+        self.root.attributes('-fullscreen', True)
 
         width = self.root.winfo_screenwidth()
         height = self.root.winfo_screenheight()
