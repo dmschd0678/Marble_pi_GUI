@@ -17,7 +17,7 @@ def noButton(root):
 
     root.destroy()
 
-def showGoldenKey(keyNum, name, content, type):
+def showGoldenKey(name, content):
 
     global isStorage
 
@@ -75,4 +75,4 @@ def showGoldenKey(keyNum, name, content, type):
     return isStorage
 
 if __name__ == "__main__":
-    showGoldenKey(1,"우대권","테스트용 황금열쇠 입니다.", "MOVE")
+    showGoldenKey("고속도로","테스트용 황금열쇠 입니다.")

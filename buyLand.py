@@ -58,7 +58,7 @@ def buyLand(name, buildingNum, pay):
     noBtn.pack(side = "left", padx = 34)
 
     image = PhotoImage(file="Building/buy.png")
-    yesBtn = Button(frame, command = lambda : noButton(root), image = image, bg = bg_color, borderwidth=0, activebackground= bg_color)
+    yesBtn = Button(frame, command = lambda : yesButton(root), image = image, bg = bg_color, borderwidth=0, activebackground= bg_color)
     yesBtn.image = image
     yesBtn.pack(side = "right", padx = 34)
 

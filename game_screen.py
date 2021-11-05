@@ -21,8 +21,16 @@ map = {"0,0" : "시작", "0,1" : "타이베이", "0,2" : "황금열쇠", "0,3" :
         "7,0" : "파리", "7,10" : "황금열쇠",
         "8,0" : "컬럼비아호", "8,10" : "베를린",
         "9,0" : "도쿄", "9,10" : "오타와",
-        "10,0" : "우주 여행", "10,1" : "마드리드", "10,2" : "퀸 엘리자베스", "10,3" : "리스본", "10,4" : "하와이", "10,5" : "부산", "10,6" : "시드니", "10,7" : "상파울루", "10,8" : "황금열쇠", "10,9" : "부에노스\n아이레스", "10,10" : "사회복지기금\n접수처"
+        "10,0" : "우주 여행", "10,1" : "마드리드", "10,2" : "퀸 엘리자베스", "10,3" : "리스본", "10,4" : "하와이", "10,5" : "부산", "10,6" : "시드니", "10,7" : "상파울루", "10,8" : "황금열쇠", "10,9" : "부에노스 아이레스", "10,10" : "사회복지기금 접수처"
        }
+
+rmap = {v:k for k,v in map.items()}
+
+landNum = {"타이베이" : 1, "베이징" : 3, "마닐라" : 4, "제주도" : 5, "싱가포르" : 6, "카이로" : 8, "이스탄불" : 9, "무인도" : 10,
+           "아테네" : 11, "코펜하겐" : 13, "스톡홀롬" : 14, "콩코드여객기" : 15, "베른" : 16, "베를린" : 18, "오타와" : 19,
+           "부에노스 아이레스" : 21, "상파울루" : 23, "시드니" : 24, "부산" : 25, "하와이" : 26, "리스본" : 27, "퀸 엘리자베스" : 28, "마드리드" : 29,
+           "도쿄" : 31, "컬럼비아호" : 32, "파리" : 33, "로마" : 34, "련던" : 36, "뉴욕" : 37, "서울" : 39
+            }
 
 bg_color = '#EBF4FD'
 
@@ -33,17 +41,26 @@ player_color = [
     "#63D868"
 ]
 
-url = {"init" : "http://15.165.88.215:8888/init",
-       "toll" : "http://15.165.88.215:8080/player/toll?userID={}&cityID={}&usingShield={}",
-       "buy"  : "http://15.165.88.215:8080/area/buy?userID={}&cityID={}",
-       "key"  : "http://15.165.88.215:8080/key",
-       "upgrade" : "http://15.165.88.215:8080/area/upgrade?user_id={}"}
+url = {"init" : "http://15.165.88.215:8888/init",                                   # 초기화
+       "playerInfo" : "http://15.165.88.215:8888/player/{}",
+       "getGoldenKey" : "http://15.165.88.215:8888/key/{}",                         # 황금열쇠 받기
+       "move" : "http://15.165.88.215:8888/player/move?user_id={}&dice_value={}",   # 움직임
+       "bankruptcy" : "http://15.165.88.215:8888/player/bankruptcy/{}",             # 파산
+       "pay" : "http://15.165.88.215:8888/player/toll?userID={}&cityID={}&usingShield={}",  # 통행료 지불
+       "getLand" : "http://15.165.88.215:8888/area/{}",                                     # 땅 정보 가져오기
+       "Landcost" : "http://15.165.88.215:8888/area/buy/{}/cost?villa=1&building=0&hotel=0", # 구입 금액
+       "buyLand" : "http://15.165.88.215:8888/area/buy/{}?userID={}&villa=1&building=0&hotel=0",    # 땅 구입
+       "upgradeLand" : "http://15.165.88.215:8888/area/upgrade/{}?user_id={}&villa={}&building={}&hotel={}", # 땅 업그레이드
+       "upgradecost" : "http://15.165.88.215:8888/area/upgrade/{}/cost?villa={}&building={}&hotel={}",      # 땅 업그레이드 금액
+       "funding" : 'http://15.165.88.215:8888/area/social/reception?user_id={}',    # 사회 복지기금 내기
+       "fund" : "http://15.165.88.215:8888/area/social/dispatch?user_id={}"         # 사회 복지기금 받기
+        }
 
 mapImages = ["images/Start.png","images/Island.png","images/SpaceTravel.png","images/Fund.png"]
 
 player_names = ["Emma","Arthur","Dorothy","Martin"]
 
-sequence = []   # 순서 list
+sequence = deque()   # 순서 list
 
 fund = 0            # 사회 복지금 모인 것
 fund_cost = 10000   # 사회 복지금 내는 단위
@@ -89,7 +106,17 @@ class Player():
 
     # 돈 출력 형식
     def moneyStr(self, money):
-        return f"{money // 10000}만" + ("원" if money % 10000 == 0 else str(money % 10000) + "원")
+        str = ""
+        if money // 100000000 > 1:
+            str += f"{money // 100000000}" + "억"
+            money %= 100000000
+        if money // 10000 > 1:
+            str += f"{money // 10000}" + "만"
+            money %= 10000
+        if money % 10000 != 0:
+            str += money % 10000
+        str += "원"
+        return str
 
     # 황금열쇠 출력 형식
     def goldenKeyStr(self,goldenKey):
@@ -98,24 +125,14 @@ class Player():
             string += i + " "
         return string
 
-    # 비용 지불
-    def cost(self, money):
-        self.money -= money
-        self.total_assets -= money
-        self.update()
-
-    # 돈 얻음
-    def addMoney(self, money):
-        self.money += money
-        self.total_assets += money
-        self.update()
-
     # 보관되는 황금열쇠
     def key(self, G_key):
         self.goldenkey.append(G_key)
 
     # 정보 갱신
     def update(self):
+        req = requests.get(url["playerInfo"]).json()
+        self.money = req["user"]["money"]
         self.moneyInfo.configure(text = "돈 : " + self.moneyStr(self.money))
         self.total_assetsInfo.configure(text = "총 자산 : " + self.moneyStr(self.total_assets))
         self.goldenKeyInfo.configure(text = "황금열쇠    : " + self.goldenKeyStr(self.goldenkey))
@@ -277,6 +294,9 @@ def gamePlay(screen):
             # 주사위 값 받아오기
             diceNum = ser.readline()
 
+            # 서버 주사위 값 넘기기
+            requests.patch(url["move"].format(playerNum,diceNum))
+
             destination = []
 
             # 이동할 위치 계산
@@ -318,38 +338,76 @@ def gamePlay(screen):
 
 
         # 이동 후 기능
-
+        special_land = ["황금열쇠", "사회복지기금", "사회복지기금 접수처", "우주여행","무인도"]
         if map[f"{y},{x}"] == "황금열쇠":
-            req = requests.get()
-            Storage = showGoldenKey.showGoldenKey(1,"","","")               # --------------------------------------------------------------------
-            if Storage:
-                screen.player[playerNum].goldenKey.append(req[0])
-            else:
-                pass
 
-        elif map[f"{y},{x}"] == "사회복지기금":
+            req = requests.get(url["getGoldenKey"].format(playerNum))
+            req.json()
+
+            Storage = showGoldenKey.showGoldenKey(req["title"],req["command"])               # --------------------------------------------------------------------
+
+            if Storage:
+                screen.player[playerNum].key(req["title"])
+
+            else:
+                if req["type"] == "pay":
+                    pass
+                elif req["type"] == "receive":
+                    pass
+                elif req["type"] == "ban":
+                    pass
+                elif req["type"] == "move":
+                    pass
+                elif req["type"] == "var move":
+                    pass
+
+        if map[f"{y},{x}"] == "사회복지기금":
             screen.player[playerNum].cost(fund_cost)
             fund += fund_cost
 
-        elif map[f"{y},{x}"] == "사회복지기금 접수처":
+            requests.patch(url["funding"].format(playerNum))
+            continue
+
+        if map[f"{y},{x}"] == "사회복지기금 접수처":
             screen.player[playerNum].money += fund
             fund = 0
 
-        elif map[f"{y},{x}"] == "우주여행":
+            requests.patch(url["fund"].format(playerNum))
+            continue
+
+        if map[f"{y},{x}"] == "우주여행":
             screen.player[playerNum].spaceTravel = True
+            continue
 
-        elif map[f"{y},{x}"] == "무인도":
+        if map[f"{y},{x}"] == "무인도":
             screen.player[playerNum].island = 3
+            continue
 
-        else:           # 나라를 밟았을 때
+        if map[f"{y},{x}"] not in special_land:           # 나라를 밟았을 때
 
-            if playerNum == "   ":   # 주인이 있을 때
+            area_id = landNum[map[f"{y},{x}"]]
 
-                if player_names == "": # 내가 주인 일 때
-                    pass
+            req = requests.get(url["getLand"].format(area_id))      # 땅 정보 가져오기
+            req = req.json()
+
+            if req["owner"] >= 0:   # 주인이 있을 때
+
+                if playerNum == req["owner"]: # 내가 주인 일 때
+                    buildings = req["villa"] + req["building"] + req["hotel"]
+
+                    upgradeInfo = []
+                    if buildings == 1:      # 주택만 있을 때
+                        upgradeInfo = [0,1,0]
+                    elif buildings == 2:    # 주택 + 빌딩이 있을 때
+                        upgradeInfo = [0,0,1]
+                    else:                   # 다 있을 때
+                        continue            # 아무것도 하지 않고 종료
+
+                    requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
+                    requests.get(url["upgradecost"].format(area_id, *upgradeInfo))
 
                 else:
-                    cost = requests.get()       # ------------------------------------------------------------
+                    cost = requests.patch(url["pay"].format(playerNum,area_id))     # ------------------------------------- 고쳐야 됨, 서버 미 구현
 
                     if screen.player[playerNum].goldenKey in "우대권":
                         useKey.useKey("우대권", cost)
@@ -357,10 +415,10 @@ def gamePlay(screen):
                         screen.player[playerNum].cost(cost)
 
             else:       #주인이 없을 때
-                cost = requests.get()       # ------------------------------------------------------------------
+                cost = requests.get(url["Landcost"].format(area_id))       # ------------------------------------------------------------------
 
-                if buyLand.buyLand(map[f"{y},{x}"], 0, cost) and screen.player[playerNum].money >= cost:
-                    screen.player[playerNum].money -= cost
+                if buyLand.buyLand(map[f"{y},{x}"], 0, cost) and requests.get(url["playerInfo"]).json()["user"]["money"] >= cost:
+
 
                     color = ""
 
@@ -378,13 +436,24 @@ def gamePlay(screen):
 
 
         if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기
-            screen.player[playerNum].location = requests.get()    # 플레이어의 모든 땅 갖고 오기    # ---------------------------------------
-            ser.write(f"B {playerNum}")
+            lands = requests.put(url["bankruptcy"].format(playerNum)).json()    # 플레이어의 모든 땅 갖고 오기    # ---------------------------------------
+            lands = lands["areas"]
+
+            result = ""
+
+            for i in lands:
+                result += rmap[i] + " "
+
+            ser.write(f"B {result}")
+
             screen.player[playerNum].bankruptcy()
 
-            sequence.remove(playerNum)
+            sequence.popleft()
         else:
             sequence.append(sequence.popleft())
+
+        for i in sequence:
+            screen.player[i].update()
 
 def start(playerNum):
     window(playerNum)
