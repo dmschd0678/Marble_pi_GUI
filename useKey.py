@@ -3,17 +3,17 @@ import tkinter.font as tkfont
 
 bg_color = "#B85D5D"
 
-is_use = False
+is_use = 0
 
 def yesButton(window):
     global is_use
-    is_use = True
+    is_use = 1
 
     window.destroy()
 
 def noButton(window):
     global is_use
-    is_use = False
+    is_use = 0
 
     window.destroy()
 
