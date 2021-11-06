@@ -251,7 +251,7 @@ def gamePlay(screen):
     print("check")
 
     global sequence, spaceDestination
-    ser = serial.Serial('COM5',9600)
+    ser = serial.Serial('/dev/ttyACM0',9600)
 
     requests.post(url["init"])              # 서버 초기화
 
