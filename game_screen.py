@@ -133,6 +133,7 @@ class Player():
     def update(self):
         req = requests.get(url["playerInfo"]).json()
         self.money = req["user"]["money"]
+        self.total_assets = req["user"]["building_money"]
         self.moneyInfo.configure(text = "돈 : " + self.moneyStr(self.money))
         self.total_assetsInfo.configure(text = "총 자산 : " + self.moneyStr(self.total_assets))
         self.goldenKeyInfo.configure(text = "황금열쇠    : " + self.goldenKeyStr(self.goldenkey))
@@ -280,19 +281,20 @@ def gamePlay(screen):
 
         elif ser.readable():
 
-            if screen.player[playerNum].island > 0:
+            if screen.player[playerNum].island_turn > 0:
                 if screen.player[playerNum].goldenKey in "무인도 탈출":
                     if useKey.useKey("무인도 탈출"):
-                        screen.player[playerNum].island = 0
+                        screen.player[playerNum].island_turn = 0
                     else:
-                        screen.player[playerNum].island -= 1
+                        screen.player[playerNum].island_turn -= 1
                         continue
                 else:
-                    screen.player[playerNum].island -= 1
+                    screen.player[playerNum].island_turn -= 1
                     continue
 
             # 주사위 값 받아오기
             diceNum = ser.readline()
+            diceNum = int.from_bytes(diceNum, byteorder="big")
 
             # 서버 주사위 값 넘기기
             requests.patch(url["move"].format(playerNum,diceNum))
@@ -331,7 +333,7 @@ def gamePlay(screen):
                 else:                               # ↑
                     destination = [screen.player[playerNum].location[0] - diceNum, 0]
 
-            serial.Serial.write(destination)
+            serial.Serial.write(f"{destination}".encode("utf-8"))
 
             y,x = destination
             screen.player[playerNum].location = destination
@@ -380,7 +382,7 @@ def gamePlay(screen):
             continue
 
         if map[f"{y},{x}"] == "무인도":
-            screen.player[playerNum].island = 3
+            screen.player[playerNum].island_turn = 3
             continue
 
         if map[f"{y},{x}"] not in special_land:           # 나라를 밟았을 때
@@ -390,21 +392,33 @@ def gamePlay(screen):
             req = requests.get(url["getLand"].format(area_id))      # 땅 정보 가져오기
             req = req.json()
 
-            if req["owner"] >= 0:   # 주인이 있을 때
+            if req["city"]["owner"] >= 0:   # 주인이 있을 때
 
-                if playerNum == req["owner"]: # 내가 주인 일 때
-                    buildings = req["villa"] + req["building"] + req["hotel"]
+                if playerNum == req["city"]["owner"]: # 내가 주인 일 때
+                    buildings = req["city"]["villa_cnt"] + req["city"]["building_cnt"] + req["city"]["hotel_cnt"]
 
                     upgradeInfo = []
+                    buildingNum = 0
+
                     if buildings == 1:      # 주택만 있을 때
                         upgradeInfo = [0,1,0]
+                        buildingNum = 1
                     elif buildings == 2:    # 주택 + 빌딩이 있을 때
                         upgradeInfo = [0,0,1]
+                        buildingNum = 2
                     else:                   # 다 있을 때
                         continue            # 아무것도 하지 않고 종료
 
+                    upgradeCost = requests.get(url["upgradecost"].format(area_id, *upgradeInfo)).json()["cost"]
+
+                    if upgradeCost > requests.get(url["playerInfo"])["user"]["money"]:
+
+                        buyLand.buyLand(req["city"]["city_name"], buildingNum, requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo)))
+
+                        ser.write(f'{req["city"]["city_name"]} ' + str(playerNum) + str(buildings + 1))
+
                     requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
-                    requests.get(url["upgradecost"].format(area_id, *upgradeInfo))
+
 
                 else:
                     cost = requests.patch(url["pay"].format(playerNum,area_id))     # ------------------------------------- 고쳐야 됨, 서버 미 구현
