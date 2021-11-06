@@ -21,16 +21,27 @@ map = {"0,0" : "시작", "0,1" : "타이베이", "0,2" : "황금열쇠", "0,3" :
         "7,0" : "파리", "7,10" : "황금열쇠",
         "8,0" : "컬럼비아호", "8,10" : "베를린",
         "9,0" : "도쿄", "9,10" : "오타와",
-        "10,0" : "우주 여행", "10,1" : "마드리드", "10,2" : "퀸 엘리자베스", "10,3" : "리스본", "10,4" : "하와이", "10,5" : "부산", "10,6" : "시드니", "10,7" : "상파울루", "10,8" : "황금열쇠", "10,9" : "부에노스 아이레스", "10,10" : "사회복지기금 접수처"
+        "10,0" : "우주 여행", "10,1" : "마드리드", "10,2" : "퀸 엘리자베스호", "10,3" : "리스본", "10,4" : "하와이", "10,5" : "부산", "10,6" : "시드니", "10,7" : "상파울루", "10,8" : "황금열쇠", "10,9" : "부에노스 아이레스", "10,10" : "사회복지기금 접수처"
        }
 
-rmap = {v:k for k,v in map.items()}
+landLocation = ['0,0', '0,1', '0,2', '0,3', '0,4', '0,5', '0,6', '0,7', '0,8', '0,9', '0,10',
+       '1,0', '1,10',
+       '2,0', '2,10',
+       '3,0', '3,10',
+       '4,0', '4,10',
+       '5,0', '5,10',
+       '6,0', '6,10',
+       '7,0', '7,10',
+       '8,0', '8,10',
+       '9,0', '9,10',
+       '10,0', '10,1', '10,2', '10,3', '10,4', '10,5', '10,6', '10,7', '10,8', '10,9', '10,10'
+       ]
 
-landNum = {"타이베이" : 1, "베이징" : 3, "마닐라" : 4, "제주도" : 5, "싱가포르" : 6, "카이로" : 8, "이스탄불" : 9, "무인도" : 10,
-           "아테네" : 11, "코펜하겐" : 13, "스톡홀롬" : 14, "콩코드여객기" : 15, "베른" : 16, "베를린" : 18, "오타와" : 19,
-           "부에노스 아이레스" : 21, "상파울루" : 23, "시드니" : 24, "부산" : 25, "하와이" : 26, "리스본" : 27, "퀸 엘리자베스" : 28, "마드리드" : 29,
-           "도쿄" : 31, "컬럼비아호" : 32, "파리" : 33, "로마" : 34, "런던" : 36, "뉴욕" : 37, "서울" : 39
-            }
+landNum = ["시작", "타이베이", "황금열쇠", "베이징", "마닐라", "제주도", "싱가포르", "황금열쇠", "카이로", "이스탄불", "무인도",
+           "아테네", "황금열쇠", "코펜하겐", "스톡홀롬", "콩코드여객기", "베른", "황금열쇠", "베를린", "오타와", "사회복지기금 접수처",
+           "부에노스아이레스", "황금열쇠", "상파울루", "시드니", "부산", "하와이", "리스본", "퀸 엘리자베스호", "마드리드", "우주여행",
+           "도쿄", "컬럼비아호", "파리", "로마", "황금열쇠", "런던", "뉴욕", "사회복지기금", "서울"
+           ]
 
 bg_color = '#EBF4FD'
 
@@ -70,11 +81,12 @@ spaceDestination = []   # 우주 여행 도착지
 
 # 플레이어 클래스
 class Player():
-    def __init__(self, frame, name, color):
+    def __init__(self, frame, name, color, num):
         self.name = name
         self.money = 500000
         self.goldenkey = []
         self.total_assets = self.money
+        self.num = num
 
         self.island_turn = 0
         self.spaceTravel = False
@@ -131,7 +143,7 @@ class Player():
 
     # 정보 갱신
     def update(self):
-        req = requests.get(url["playerInfo"]).json()
+        req = requests.get(url["playerInfo"].format(self.num)).json()
         self.money = req["user"]["money"]
         self.total_assets = req["user"]["building_money"]
         self.moneyInfo.configure(text = "돈 : " + self.moneyStr(self.money))
@@ -188,7 +200,7 @@ class window():
         self.topPlayerName.pack()
 
         for i in range(playerNum):                      # 플레이어 객체
-            self.player.append(Player(ranking, player_names[i], player_color[i]))
+            self.player.append(Player(ranking, player_names[i], player_color[i], i))
 
         sequence = deque(range(1, playerNum + 1))
 
@@ -210,7 +222,7 @@ class window():
 
                 if (i == 0 or i == 10) or (j == 0 or j == 10):
 
-                    self.land[i][j] = Button(self.bluemarble, text=map[f"{i},{j}"], width = 130, height = 85, command = lambda y = i,x = j: self.selectButton(y,x), activebackground= bg_color)
+                    self.land[i][j] = Button(self.bluemarble, width = 130, height = 85, command = lambda y = i,x = j: self.selectButton(y,x), activebackground= bg_color)
 
                     if (i == 0 or i == 10) and (j == 0 or j == 10):   # 꼭짓점 이미지 적용
                         image = PhotoImage(file= mapImages[index])
@@ -268,6 +280,7 @@ def gamePlay(screen):
 
         playerNum = sequence[0]
 
+        # 우주 여행
         if screen.player[playerNum].spaceTravel:
 
             spaceDestination = [-1,-1]
@@ -279,16 +292,17 @@ def gamePlay(screen):
             print("여행 실행")
             screen.player[playerNum].spaceTravel = False
 
+        # 주사위를 굴려야 됨
         elif ser.readable():
 
-            if screen.player[playerNum].island_turn > 0:
-                if screen.player[playerNum].goldenKey in "무인도 탈출":
-                    if useKey.useKey("무인도 탈출"):
+            if screen.player[playerNum].island_turn > 0:        # 무인도에 갇혀 있다면
+                if screen.player[playerNum].goldenKey in "무인도 탈출":  # 무인도 탈출을 갖고 있다면
+                    if useKey.useKey("무인도 탈출"):                     # 탈출카드를 쓴다면
                         screen.player[playerNum].island_turn = 0
-                    else:
+                    else:                                               # 계속 갇혀있기
                         screen.player[playerNum].island_turn -= 1
                         continue
-                else:
+                else:                                                   # 계속 갇혀있기
                     screen.player[playerNum].island_turn -= 1
                     continue
 
@@ -299,48 +313,15 @@ def gamePlay(screen):
             # 서버 주사위 값 넘기기
             requests.patch(url["move"].format(playerNum,diceNum))
 
-            destination = []
+            location = requests.get(url["playerInfo"].format(playerNum)).json()["user"]["location"]
 
-            # 이동할 위치 계산
-            if screen.player[playerNum].location[0] == 0:
-                if screen.player[playerNum].location[1] + diceNum > 10:       # ->↓
-                    y = (screen.player[playerNum].location[1] + diceNum) % 10
-                    destination = [y,10]
-                else:   # ->
-                    destination = [0, screen.player[playerNum].location[1] + diceNum]
+            serial.Serial.write((f"{landLocation[location]}").encode("utf-8"))
 
-
-            elif screen.player[playerNum].location[0] == 10:
-                if screen.player[playerNum].location[1] + diceNum < 0:    # ↑<-
-                    y = screen.player[playerNum].location[1] + abs(screen.player[playerNum].location[0] - diceNum)
-                    destination = [y, 0]
-                else:               # <-
-                    destination = [10, screen.player[playerNum].location[1] - diceNum]
-
-            elif screen.player[playerNum].location[0] != 0 and screen.player[playerNum].location[1] == 10:
-                if screen.player[playerNum].location[0] + diceNum > 10: # <- ↓
-                    x = 10 - ((screen.player[playerNum].location[0] + diceNum) % 10)
-                    destination = [10, x]
-                else:                       # ↓
-                    destination = [screen.player[playerNum].location[0] + diceNum, 10]
-
-            elif screen.player[playerNum].location[0] != 10 and screen.player[playerNum].location[1] == 0:
-                if screen.player[playerNum].location[0] - diceNum < 0:             # ↑ -> + 월급
-                    x = abs(screen.player[playerNum].location[0] - diceNum)
-                    destination = [0,x]
-                    screen.player[playerNum].addMoney(20000)
-
-                else:                               # ↑
-                    destination = [screen.player[playerNum].location[0] - diceNum, 0]
-
-            serial.Serial.write(f"{destination}".encode("utf-8"))
-
-            y,x = destination
-            screen.player[playerNum].location = destination
-
+            y,x = list(map(int,landLocation[location].split(",")))
 
         # 이동 후 기능
         special_land = ["황금열쇠", "사회복지기금", "사회복지기금 접수처", "우주여행","무인도"]
+
         if map[f"{y},{x}"] == "황금열쇠":
 
             req = requests.get(url["getGoldenKey"].format(playerNum))
@@ -387,7 +368,7 @@ def gamePlay(screen):
 
         if map[f"{y},{x}"] not in special_land:           # 나라를 밟았을 때
 
-            area_id = landNum[map[f"{y},{x}"]]
+            area_id = landNum.index([map[f"{y},{x}"]])
 
             req = requests.get(url["getLand"].format(area_id))      # 땅 정보 가져오기
             req = req.json()
@@ -411,7 +392,7 @@ def gamePlay(screen):
 
                     upgradeCost = requests.get(url["upgradecost"].format(area_id, *upgradeInfo)).json()["cost"]
 
-                    if upgradeCost > requests.get(url["playerInfo"])["user"]["money"]:
+                    if upgradeCost > requests.get(url["playerInfo"].format(playerNum))["user"]["money"]:
 
                         buyLand.buyLand(req["city"]["city_name"], buildingNum, requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo)))
 
@@ -430,23 +411,23 @@ def gamePlay(screen):
 
             else:       #주인이 없을 때
                 cost = requests.get(url["Landcost"].format(area_id))       # ------------------------------------------------------------------
+                if requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"] >= cost:
 
-                if buyLand.buyLand(map[f"{y},{x}"], 0, cost) and requests.get(url["playerInfo"]).json()["user"]["money"] >= cost:
+                    if buyLand.buyLand(map[f"{y},{x}"], 0, cost):
 
+                        color = ""
 
-                    color = ""
+                        if playerNum == 0:
+                            color = "red"
+                        elif playerNum == 1:
+                            color = "blue"
+                        elif playerNum == 2:
+                            color = "yellow"
+                        elif playerNum == 3:
+                            color = "green"
 
-                    if playerNum == 0:
-                        color = "red"
-                    elif playerNum == 1:
-                        color = "blue"
-                    elif playerNum == 2:
-                        color = "yellow"
-                    elif playerNum == 3:
-                        color = "green"
-
-                    image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
-                    screen.land[y][x].configure(image = image)
+                        image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
+                        screen.land[y][x].configure(image = image)
 
 
         if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기
@@ -456,9 +437,9 @@ def gamePlay(screen):
             result = ""
 
             for i in lands:
-                result += rmap[i] + " "
+                result += landLocation[landNum.index(i)]
 
-            ser.write(f"B {result}")
+            ser.write(f"B {result}".encode("utf-8"))
 
             screen.player[playerNum].bankruptcy()
 
