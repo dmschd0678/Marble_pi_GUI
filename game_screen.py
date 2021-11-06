@@ -1,3 +1,4 @@
+import binascii
 from tkinter import *
 import tkinter.font as tkfont
 import requests
@@ -51,7 +52,7 @@ url = {"init" : "http://15.165.88.215:8888/init",                               
        "move" : "http://15.165.88.215:8888/player/move?user_id={}&dice_value={}",   # 움직임
        "bankruptcy" : "http://15.165.88.215:8888/player/bankruptcy/{}",             # 파산
        "pay" : "http://15.165.88.215:8888/player/toll?userID={}&cityID={}&usingShield={}",  # 통행료 지불
-       "payInfo" : "http://15.165.88.215:8888/player/toll?cityID={}",
+       "payInfo" : "http://15.165.88.215:8888/player/toll?cityID={}",                       # 통행료 정보
        "getLand" : "http://15.165.88.215:8888/area/{}",                                     # 땅 정보 가져오기
        "Landcost" : "http://15.165.88.215:8888/area/buy/{}/cost?villa=1&building=0&hotel=0", # 구입 금액
        "buyLand" : "http://15.165.88.215:8888/area/buy/{}?userID={}&villa=1&building=0&hotel=0",    # 땅 구입
@@ -67,11 +68,7 @@ player_names = ["Emma","Arthur","Dorothy","Martin"]
 
 sequence = deque()   # 순서 list
 
-fund = 0            # 사회 복지금 모인 것
-fund_cost = 10000   # 사회 복지금 내는 단위
-
 spaceDestination = []   # 우주 여행 도착지
-
 
 # 플레이어 클래스
 class Player():
@@ -318,7 +315,9 @@ def gamePlay(screen):
             location = requests.get(url["playerInfo"].format(playerNum))
             location = location.json()["user"]["location"]
 
-            serial.Serial.write((f"{landLocation[location]}").encode("utf-8"))
+            # serial.Serial.write((f"{landLocation[location]}").encode("utf-8"))
+            ser.write(binascii.unhexlify(f"{landLocation[location]}"))
+
 
             y,x = landLocation[location].split(',')
             y,x = int(y), int(x)
@@ -337,16 +336,10 @@ def gamePlay(screen):
                 screen.player[playerNum].key(req["title"])
 
         if map[f"{y},{x}"] == "사회복지기금":
-            screen.player[playerNum].cost(fund_cost)
-            fund += fund_cost
-
             requests.patch(url["funding"].format(playerNum))
             continue
 
         if map[f"{y},{x}"] == "사회복지기금 접수처":
-            screen.player[playerNum].money += fund
-            fund = 0
-
             requests.patch(url["fund"].format(playerNum))
             continue
 
@@ -389,7 +382,8 @@ def gamePlay(screen):
                         if buyLand.buyLand(req["city"]["city_name"], buildingNum, upgradeCost):
                             requests.patch(url["upgradeLand"].format(area_id,playerNum,upgradeInfo))
 
-                            ser.write(f'{req["city"]["city_name"]} ' + str(playerNum) + str(buildings + 1))
+                            # ser.write(f'{req["city"]["city_name"]} ' + str(playerNum) + str(buildings + 1))
+                            ser.write(binascii.unhexlify(f'{req["city"]["city_name"]} ' + str(playerNum) + str(buildings + 1)))
 
                     requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
 
@@ -433,7 +427,8 @@ def gamePlay(screen):
             for i in lands:
                 result += landLocation[landNum.index(i)]
 
-            ser.write(f"B {result}".encode("utf-8"))
+            # ser.write(f"B {result}".encode('utf-8'))
+            ser.write(binascii.unhexlify(f"B {result}"))
 
             screen.player[playerNum].bankruptcy()
 
