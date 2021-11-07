@@ -359,7 +359,14 @@ def gamePlay(screen):
 
             if req["city"]["owner"] >= 0:   # 주인이 있을 때
 
+
                 if playerNum == req["city"]["owner"]: # 내가 주인 일 때
+                    land_type = requests.get(url["getLand"].format(area_id))
+                    land_type = land_type.json()["city"]["area_type"]
+
+                    if land_type == "cant_build":
+                        continue
+
                     buildings = req["city"]["villa_cnt"] + req["city"]["building_cnt"] + req["city"]["hotel_cnt"]
 
                     upgradeInfo = []
@@ -381,8 +388,8 @@ def gamePlay(screen):
                         if buyLand.buyLand(req["city"]["city_name"], buildingNum, upgradeCost):
                             requests.patch(url["upgradeLand"].format(area_id,playerNum,upgradeInfo))
 
-                            # ser.write(f'{req["city"]["city_name"]} ' + str(playerNum) + str(buildings + 1))
-                            ser.write(binascii.unhexlify(f'{req["city"]["city_name"]} ' + str(playerNum) + str(buildings + 1)))
+                            # ser.write(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
+                            ser.write(binascii.unhexlify(f'L {landLocation[location]} {playerNum} {buildingNum + 1}'))
 
                     requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
 
@@ -413,8 +420,13 @@ def gamePlay(screen):
                         elif playerNum == 3:
                             color = "green"
 
+                        requests.patch(url["buyLand"].format(area_id,playerNum))
+
                         image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
                         screen.land[y][x].configure(image = image)
+
+                        # ser.write((f"L {landLocation[area_id]} {playerNum} {1}").encode("utf-8"))
+                        ser.write(binascii.unhexlify(f"L {landLocation[area_id]} {playerNum} {1}"))
 
 
         if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기
