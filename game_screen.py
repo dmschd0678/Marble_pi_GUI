@@ -306,8 +306,7 @@ def gamePlay(screen):
                     continue
 
             # 주사위 값 받아오기
-            diceNum = ser.readline()
-            diceNum = int.from_bytes(diceNum, byteorder="big")
+            diceNum = int(ser.readline().decode("utf-8"))
 
             # 서버 주사위 값 넘기기
             requests.patch(url["move"].format(playerNum,diceNum))
