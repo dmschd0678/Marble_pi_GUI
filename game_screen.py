@@ -358,10 +358,10 @@ def gamePlay(screen):
             req = requests.get(url["getLand"].format(area_id))      # 땅 정보 가져오기
             req = req.json()
 
-            if req["city"]["owner"] >= 0:   # 주인이 있을 때
+            if int(req["city"]["owner"]) >= 0:   # 주인이 있을 때
 
 
-                if playerNum == req["city"]["owner"]: # 내가 주인 일 때
+                if playerNum == int(req["city"]["owner"]): # 내가 주인 일 때
                     land_type = requests.get(url["getLand"].format(area_id))
                     land_type = land_type.json()["city"]["area_type"]
 
