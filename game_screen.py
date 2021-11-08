@@ -308,14 +308,13 @@ def gamePlay(screen):
             # 주사위 값 받아오기
             diceNum = int(ser.readline().decode("utf-8"))
             print(diceNum)
-
+            curLocation = landLocation[requests.get(url[playerNum]).json()["user"]["location"]]
             # 서버 주사위 값 넘기기
             requests.patch(url["move"].format(playerNum,diceNum))
-
             location = requests.get(url["playerInfo"].format(playerNum))
             location = location.json()["user"]["location"]
 
-            ser.write((f"{landLocation[location]}").encode("utf-8"))
+            ser.write((f"M {curLocation} {landLocation[location]}").encode("utf-8"))
             # ser.write(binascii.unhexlify(f"{landLocation[location]}"))
 
 
