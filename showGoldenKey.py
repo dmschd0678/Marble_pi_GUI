@@ -1,5 +1,6 @@
 from tkinter import *
 import tkinter.font as tkfont
+import requests
 
 bg_color = "#B85D5D"
 
@@ -54,7 +55,7 @@ def showGoldenKey(id, name, content):
     KeyImage.image = image
     KeyImage.pack(side = "top", pady = 10)
 
-    font = tkfont.Font(size=15, family="malgun gothic")
+    font = tkfont.Font(size=10, family="malgun gothic")
     contentLabel = Label(frame, text = content, bg = bg_color, font = font, fg = "white")
     contentLabel.pack()
 
@@ -81,4 +82,8 @@ def showGoldenKey(id, name, content):
     return isStorage
 
 if __name__ == "__main__":
-    showGoldenKey("노벨 평화상","테스트용 황금열쇠 입니다.")
+    # showGoldenKey("노벨 평화상","테스트용 황금열쇠 입니다.")
+    while True:
+        req = requests.get("http://15.165.88.215:8888/key/1").json()
+        if req["title"] == "관광 여행":
+            showGoldenKey(req["key_id"], req["title"], req["command"])
