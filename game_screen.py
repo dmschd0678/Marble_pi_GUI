@@ -397,7 +397,7 @@ def gamePlay(screen):
 
                 else:
                     cost = requests.get(url["payInfo"].format(area_id))
-
+                    shield = 0
                     if "우대권" in screen.player[playerNum].goldenkey:
                         shield = useKey.useKey("우대권", cost)
                         del screen.player[playerNum].goldneKey[screen.player[playerNum].goldenKey.index("우대권")]
