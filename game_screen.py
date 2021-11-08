@@ -405,7 +405,7 @@ def gamePlay(screen):
 
             else:       #주인이 없을 때
                 cost = requests.get(url["Landcost"].format(area_id))       # ------------------------------------------------------------------
-                playerMoney =  requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"]
+                playerMoney =  int(requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"])
                 if playerMoney >= cost:
 
                     if buyLand.buyLand(map[f"{y},{x}"], 0, cost):

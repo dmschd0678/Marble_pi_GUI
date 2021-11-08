@@ -42,7 +42,7 @@ def showGoldenKey(name, content):
     KeyName = Label(frame, text = "    " + name + "    ", bg = "#FFD15A",fg = "white", font = font)
     KeyName.pack(side = "top")
 
-    image = PhotoImage(file="goldenKeyImages/{}.png".format(name))
+    image = PhotoImage(file="goldenKeyImages/{}.png".format(name), master=root)
     KeyImage = Label(frame, bg = bg_color)
     KeyImage.configure(image=image, borderwidth=0)
     KeyImage.image = image
@@ -56,12 +56,12 @@ def showGoldenKey(name, content):
     buttonFrame.pack(side = "bottom", pady = 10)
 
     if name == "우대권" or name == "무인도 탈출":
-        image = PhotoImage(file="goldenKeyImages/keeping.png")
+        image = PhotoImage(file="goldenKeyImages/keeping.png", master=root)
         yesBtn = Button(buttonFrame, command = lambda : yesButton(root), image = image, bg = bg_color, borderwidth=0, activebackground= bg_color)
         yesBtn.image = image
         yesBtn.pack(side="right", padx=10)
 
-        image = PhotoImage(file="goldenKeyImages/throw.png")
+        image = PhotoImage(file="goldenKeyImages/throw.png", master=root)
         noBtn = Button(buttonFrame, command = lambda : noButton(root), image = image, bg = bg_color, borderwidth=0, activebackground= bg_color)
         noBtn.image = image
         noBtn.pack(side = "left", padx = 10)

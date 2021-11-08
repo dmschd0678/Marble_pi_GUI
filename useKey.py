@@ -44,7 +44,7 @@ def useKey(name, *args):
     KeyName = Label(frame, text="    " + name + "    ", bg="#FFD15A", fg="white", font=font)
     KeyName.pack(side="top")
 
-    image = PhotoImage(file="key_func/{}.png".format(name))
+    image = PhotoImage(file="key_func/{}.png".format(name), master=root)
     KeyImage = Label(frame, bg=bg_color)
     KeyImage.configure(image=image, borderwidth=0)
     KeyImage.image = image
@@ -63,12 +63,12 @@ def useKey(name, *args):
         func.configure(text = "무인도에서 즉시 탈출")
         word.configure(text="무인도 탈출권을\n사용하시겠습니까?")
 
-    image = PhotoImage(file = "key_func/cancel.png")
+    image = PhotoImage(file = "key_func/cancel.png", master=root)
     noBtn = Button(frame, image = image, bg = bg_color, borderwidth=0, activebackground= bg_color, command = lambda : noButton(root))
     noBtn.image = image
     noBtn.pack(side = "left", padx = 34)
 
-    image = PhotoImage(file = "key_func/use.png")
+    image = PhotoImage(file = "key_func/use.png", master= root)
     yesBtn = Button(frame, image = image, bg = bg_color, borderwidth=0, activebackground= bg_color, command = lambda : yesButton(root))
     yesBtn.image = image
     yesBtn.pack(side = "right", padx = 34)
