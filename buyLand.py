@@ -42,7 +42,7 @@ def buyLand(name, buildingNum, pay):
     KeyName = Label(frame, text="    " + name + "    ", bg= color, fg="white", font=font)
     KeyName.pack(side="top", pady = 10)
 
-    image = PhotoImage(file = "Building/{}.png".format(building[buildingNum]))
+    image = PhotoImage(file = "Building/{}.png".format(building[buildingNum]), master=root)
 
     buildingImage = Label(frame, bg = bg_color, image = image)
     buildingImage.image = image
@@ -52,12 +52,12 @@ def buyLand(name, buildingNum, pay):
     contentLabel = Label(frame, text="{} 건설\n건설 비용 -> {}".format(building_kor[buildingNum],pay), bg="#616161", font=font, fg="white")
     contentLabel.pack(pady = 10)
 
-    image = PhotoImage(file="Building/close.png")
+    image = PhotoImage(file="Building/close.png", master=root)
     noBtn = Button(frame, command=lambda: noButton(root), image=image, bg=bg_color, borderwidth=0,activebackground=bg_color)
     noBtn.image = image
     noBtn.pack(side = "left", padx = 34)
 
-    image = PhotoImage(file="Building/buy.png")
+    image = PhotoImage(file="Building/buy.png", master= root)
     yesBtn = Button(frame, command = lambda : yesButton(root), image = image, bg = bg_color, borderwidth=0, activebackground= bg_color)
     yesBtn.image = image
     yesBtn.pack(side = "right", padx = 34)
