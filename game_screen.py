@@ -307,6 +307,7 @@ def gamePlay(screen):
 
             # 주사위 값 받아오기
             diceNum = int(ser.readline().decode("utf-8"))
+            print(diceNum)
 
             # 서버 주사위 값 넘기기
             requests.patch(url["move"].format(playerNum,diceNum))
@@ -329,7 +330,7 @@ def gamePlay(screen):
             req = requests.get(url["getGoldenKey"].format(playerNum))
             req = req.json()
 
-            Storage = showGoldenKey.showGoldenKey(req["title"],req["situation"] + "\n" + req["command"])               # --------------------------------------------------------------------
+            Storage = showGoldenKey.showGoldenKey(req["key_id"],req["title"],req["situation"] + "\n" + req["command"])               # --------------------------------------------------------------------
 
             if Storage:
                 screen.player[playerNum].key(req["title"])
@@ -405,7 +406,6 @@ def gamePlay(screen):
 
             else:       #주인이 없을 때
                 cost = requests.get(url["Landcost"].format(area_id))       # ------------------------------------------------------------------
-                playerMoney =  int(requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"])
                 if playerMoney >= cost:
 
                     if buyLand.buyLand(map[f"{y},{x}"], 0, cost):

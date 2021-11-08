@@ -17,10 +17,16 @@ def noButton(root):
 
     root.destroy()
 
-def showGoldenKey(name, content):
+def showGoldenKey(id, name, content):
 
     global isStorage
 
+    if id == 5:
+        name = name +"(제주도)"
+    if id == 13:
+        name = name +"(부산)"
+    if id == 16:
+        name = name +"(서울)"
     w = 400
     h = 600
 
@@ -75,4 +81,4 @@ def showGoldenKey(name, content):
     return isStorage
 
 if __name__ == "__main__":
-    showGoldenKey("고속도로","테스트용 황금열쇠 입니다.")
+    showGoldenKey("노벨 평화상","테스트용 황금열쇠 입니다.")
