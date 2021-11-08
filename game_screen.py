@@ -193,7 +193,7 @@ class window():
         for i in range(playerNum):                      # 플레이어 객체
             self.player.append(Player(ranking, player_names[i], player_color[i], i))
 
-        sequence = deque(range(1, playerNum + 1))
+        sequence = deque(range(playerNum))
 
         image = PhotoImage(file="images/Mable_py.png", master=self.bluemarble)          # Marble.py 이미지 판 중간
         label = Label(self.bluemarble, image=image, bg = bg_color).grid(row=2, column=2, rowspan = 7, columnspan = 7)
