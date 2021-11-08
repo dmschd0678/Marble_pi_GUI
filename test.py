@@ -1,5 +1,7 @@
 import requests
 
-req = int(requests.get("http://15.165.88.215:8888/area/buy/11/cost?villa=1&building=0&hotel=0").json()["cost"])
+l = [0,0,1]
 
-print(req)
+req = requests.get("http://15.165.88.215:8888/area/upgrade/{}/cost?villa={}&building={}&hotel={}".format(33,*l)).json()["cost"]
+
+print(type(req))
