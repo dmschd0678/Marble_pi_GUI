@@ -405,7 +405,7 @@ def gamePlay(screen):
                     requests.patch(url["pay"].format(playerNum,area_id,shield))
 
             else:       #주인이 없을 때
-                cost = requests.get(url["Landcost"].format(area_id))# ------------------------------------------------------------------
+                cost = int(requests.get(url["Landcost"].format(area_id)))# ------------------------------------------------------------------
                 playerMoney = int(requests.get(url["playerInfo"]).json()["user"]["money"])
                 if playerMoney >= cost:
 
