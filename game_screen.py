@@ -426,6 +426,7 @@ def gamePlay(screen):
 
                         image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
                         screen.land[y][x].configure(image = image)
+                        screen.land[y][x].image = image
 
                         ser.write((f"L {landLocation[area_id]} {playerNum} {1}").encode("utf-8"))
                         # ser.write(binascii.unhexlify(f"L {landLocation[area_id]} {playerNum} {1}"))
