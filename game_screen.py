@@ -314,8 +314,8 @@ def gamePlay(screen):
             location = requests.get(url["playerInfo"].format(playerNum))
             location = location.json()["user"]["location"]
 
-            # serial.Serial.write((f"{landLocation[location]}").encode("utf-8"))
-            ser.write(binascii.unhexlify(f"{landLocation[location]}"))
+            ser.write((f"{landLocation[location]}").encode("utf-8"))
+            # ser.write(binascii.unhexlify(f"{landLocation[location]}"))
 
 
             y,x = landLocation[location].split(',')
@@ -352,7 +352,7 @@ def gamePlay(screen):
 
         if map[f"{y},{x}"] not in special_land:           # 나라를 밟았을 때
 
-            area_id = landNum.index([map[f"{y},{x}"]])
+            area_id = landNum.index(map[f"{y},{x}"])
 
             req = requests.get(url["getLand"].format(area_id))      # 땅 정보 가져오기
             req = req.json()
@@ -382,14 +382,14 @@ def gamePlay(screen):
                         continue            # 아무것도 하지 않고 종료
 
                     upgradeCost = requests.get(url["upgradecost"].format(area_id, *upgradeInfo)).json()["cost"]
-
-                    if upgradeCost < requests.get(url["playerInfo"].format(playerNum))["user"]["money"]:
+                    playerMoney = requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"]
+                    if upgradeCost < playerMoney:
 
                         if buyLand.buyLand(req["city"]["city_name"], buildingNum, upgradeCost):
                             requests.patch(url["upgradeLand"].format(area_id,playerNum,upgradeInfo))
 
-                            # ser.write(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
-                            ser.write(binascii.unhexlify(f'L {landLocation[location]} {playerNum} {buildingNum + 1}'))
+                            ser.write(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
+                            # ser.write(binascii.unhexlify(f'L {landLocation[location]} {playerNum} {buildingNum + 1}'))
 
                     requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
 
@@ -405,7 +405,8 @@ def gamePlay(screen):
 
             else:       #주인이 없을 때
                 cost = requests.get(url["Landcost"].format(area_id))       # ------------------------------------------------------------------
-                if requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"] >= cost:
+                playerMoney =  requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"]
+                if playerMoney >= cost:
 
                     if buyLand.buyLand(map[f"{y},{x}"], 0, cost):
 
@@ -425,8 +426,8 @@ def gamePlay(screen):
                         image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
                         screen.land[y][x].configure(image = image)
 
-                        # ser.write((f"L {landLocation[area_id]} {playerNum} {1}").encode("utf-8"))
-                        ser.write(binascii.unhexlify(f"L {landLocation[area_id]} {playerNum} {1}"))
+                        ser.write((f"L {landLocation[area_id]} {playerNum} {1}").encode("utf-8"))
+                        # ser.write(binascii.unhexlify(f"L {landLocation[area_id]} {playerNum} {1}"))
 
 
         if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기
@@ -438,8 +439,8 @@ def gamePlay(screen):
             for i in lands:
                 result += landLocation[landNum.index(i)]
 
-            # ser.write(f"B {result}".encode('utf-8'))
-            ser.write(binascii.unhexlify(f"B {result}"))
+            ser.write(f"B {result}".encode('utf-8'))
+            # ser.write(binascii.unhexlify(f"B {result}"))
 
             screen.player[playerNum].bankruptcy()
 
