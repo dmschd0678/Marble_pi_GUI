@@ -294,7 +294,7 @@ def gamePlay(screen):
         elif ser.readable():
 
             if screen.player[playerNum].island_turn > 0:        # 무인도에 갇혀 있다면
-                if screen.player[playerNum].goldenKey in "무인도 탈출":  # 무인도 탈출을 갖고 있다면
+                if screen.player[playerNum].goldenkey in "무인도 탈출":  # 무인도 탈출을 갖고 있다면
                     if useKey.useKey("무인도 탈출"):                     # 탈출카드를 쓴다면
                         screen.player[playerNum].island_turn = 0
                         del screen.player[playerNum].goldenKey[screen.player[playerNum].goldenKey.index("무인도 탈출")]
@@ -398,14 +398,14 @@ def gamePlay(screen):
                 else:
                     cost = requests.get(url["payInfo"].format(area_id))
 
-                    if screen.player[playerNum].goldenKey in "우대권":
+                    if screen.player[playerNum].goldenkey in "우대권":
                         shield = useKey.useKey("우대권", cost)
                         del screen.player[playerNum].goldneKey[screen.player[playerNum].goldenKey.index("우대권")]
 
                     requests.patch(url["pay"].format(playerNum,area_id,shield))
 
             else:       #주인이 없을 때
-                cost = int(requests.get(url["Landcost"].format(area_id)).json()["cost"])# ------------------------------------------------------------------
+                cost = int(requests.get(url["Landcost"].format(area_id)).json()["cost                                                            "])# ------------------------------------------------------------------
                 playerMoney = int(requests.get(url["playerInfo"]).json()["user"]["money"])
                 if playerMoney >= cost:
 
