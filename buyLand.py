@@ -6,6 +6,7 @@ color = "#F3CF98"
 
 building = ['villa', 'building', "hotel"]
 building_kor = ["주택", "빌딩", "호텔"]
+special_Land = ["컬럼비아호", "콩코드여객기","퀸 엘리자베스","부산","제주도","서울"]
 
 is_buy = False
 
@@ -42,15 +43,29 @@ def buyLand(name, buildingNum, pay):
     KeyName = Label(frame, text="    " + name + "    ", bg= color, fg="white", font=font)
     KeyName.pack(side="top", pady = 10)
 
-    image = PhotoImage(file = "Building/{}.png".format(building[buildingNum]), master=root)
+    if name in special_Land:
+        image = PhotoImage(file = "Building/{}.png".format(name), master=root)
 
-    buildingImage = Label(frame, bg = bg_color, image = image)
-    buildingImage.image = image
-    buildingImage.pack(side = "top", pady = 10)
+        buildingImage = Label(frame, bg=bg_color, image=image)
+        buildingImage.image = image
+        buildingImage.pack(side="top", pady=10)
 
-    font = tkfont.Font(size=20, family="malgun gothic")
-    contentLabel = Label(frame, text="{} 건설\n건설 비용 -> {}".format(building_kor[buildingNum],pay), bg="#616161", font=font, fg="white")
-    contentLabel.pack(pady = 10)
+        font = tkfont.Font(size=20, family="malgun gothic")
+        contentLabel = Label(frame, text="{}\n건설 비용 -> {}".format(name,pay), bg="#616161",
+                             font=font, fg="white")
+        contentLabel.pack(pady=10)
+
+    else:
+        image = PhotoImage(file = "Building/{}.png".format(building[buildingNum]), master=root)
+
+        buildingImage = Label(frame, bg=bg_color, image=image)
+        buildingImage.image = image
+        buildingImage.pack(side="top", pady=10)
+
+
+        font = tkfont.Font(size=20, family="malgun gothic")
+        contentLabel = Label(frame, text="{} 건설\n건설 비용 -> {}".format(building_kor[buildingNum],pay), bg="#616161", font=font, fg="white")
+        contentLabel.pack(pady = 10)
 
     image = PhotoImage(file="Building/close.png", master=root)
     noBtn = Button(frame, command=lambda: noButton(root), image=image, bg=bg_color, borderwidth=0,activebackground=bg_color)
@@ -66,4 +81,4 @@ def buyLand(name, buildingNum, pay):
 
     return is_buy
 if __name__ == "__main__":
-    print(buyLand("런던", 2, 1000))
+    print(buyLand("퀸 엘리자베스", 2, 1000000))

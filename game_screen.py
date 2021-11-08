@@ -118,6 +118,8 @@ class Player():
             money %= 10000
         if money % 10000 != 0:
             str += money % 10000
+        else:
+            str += 0
         str += "원"
         return str
 
