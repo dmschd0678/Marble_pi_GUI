@@ -309,11 +309,11 @@ def gamePlay(screen):
             diceNum = int(ser.readline().decode("utf-8"))
             print(diceNum)
             curLocation = requests.get(url["playerInfo"].format(playerNum))
-            curLocation = int(curLocation.json()["user"]["location"])
+            curLocation = landLocation[curLocation.json()["user"]["location"]]
             # 서버 주사위 값 넘기기
             requests.patch(url["move"].format(playerNum,diceNum))
             location = requests.get(url["playerInfo"].format(playerNum))
-            location = int(location.json()["user"]["location"])
+            location = landLocation[location.json()["user"]["location"]]
 
             ser.write((f"M {landLocation[curLocation]} {landLocation[location]}").encode("utf-8"))
             # ser.write(binascii.unhexlify(f"{landLocation[location]}"))
