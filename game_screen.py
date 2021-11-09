@@ -326,7 +326,7 @@ def gamePlay(screen):
 
             time.sleep(0.1)
 
-            y,x = landLocation[location].split(',')
+            y,x = location.split(',')
             y,x = int(y), int(x)
 
         # 이동 후 기능
