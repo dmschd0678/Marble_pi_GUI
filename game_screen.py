@@ -3,6 +3,8 @@ from tkinter import *
 import tkinter.font as tkfont
 import requests
 import serial
+
+import GameOver
 import buyLand
 import showGoldenKey
 from collections import deque
@@ -287,7 +289,16 @@ def gamePlay(screen):
             else:
                 des -= 30
 
-            requests.patch(url["move"].format(playerNum,des))
+            curLocation = requests.get(url["playerInfo"].format(playerNum))
+            curLocation = landLocation[curLocation.json()["user"]["location"]]
+
+            requests.patch(url["move"].format(playerNum, des))
+
+            location = requests.get(url["playerInfo"].format(playerNum))
+            location = landLocation[location.json()["user"]["location"]]
+
+            ser.write((f"M {curLocation} {location} {playerNum}").encode("utf-8"))
+            print(f"M {curLocation} {location} {playerNum}")
 
             print("여행 실행")
             screen.player[playerNum].spaceTravel = False
@@ -484,6 +495,10 @@ def gamePlay(screen):
 
         for i in sequence:
             screen.player[i].update()
+
+        if len(sequence) == 1:
+            screen.root.destroy()
+            GameOver.gameOver(playerNum, player_names[playerNum], player_color[playerNum])
 
 def start(playerNum):
     window(playerNum)

@@ -74,7 +74,7 @@ def showGoldenKey(id, name, content):
         noBtn.pack(side = "left", padx = 10)
 
     else:
-        chkBtn = Button(buttonFrame, text = "확인", font = font, fg = "white", bg = "#FFD43A", command = lambda : noButton(root))
+        chkBtn = Button(buttonFrame, text = "확인", font = font, fg = "white", bg = "#FFD43A", command = lambda : noButton(root), width = 10, height = 2)
         chkBtn.pack()
 
     root.mainloop()
@@ -82,8 +82,6 @@ def showGoldenKey(id, name, content):
     return isStorage
 
 if __name__ == "__main__":
-    # showGoldenKey("노벨 평화상","테스트용 황금열쇠 입니다.")
     while True:
         req = requests.get("http://15.165.88.215:8888/key/1").json()
-        if req["title"] == "관광 여행":
-            showGoldenKey(req["key_id"], req["title"], req["command"])
+        showGoldenKey(req["key_id"], req["title"], req["command"])
