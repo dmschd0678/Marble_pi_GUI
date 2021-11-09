@@ -338,8 +338,17 @@ def gamePlay(screen):
         if map[f"{y},{x}"] == "황금열쇠":
             print("황금열쇠")
 
+            curLocation = requests.get(url["playerInfo"].format(playerNum))
+            curLocation = landLocation[curLocation.json()["user"]["location"]]
+
             req = requests.get(url["getGoldenKey"].format(playerNum))
             req = req.json()
+
+            location = requests.get(url["playerInfo"].format(playerNum))
+            location = landLocation[location.json()["user"]["location"]]
+
+            ser.write((f"M {curLocation} {location} {playerNum}").encode("utf-8"))
+            print(f"M {curLocation} {location} {playerNum}")
 
             Storage = showGoldenKey.showGoldenKey(req["key_id"],req["title"],req["situation"] + "\n" + req["command"])               # --------------------------------------------------------------------
 
@@ -364,6 +373,8 @@ def gamePlay(screen):
         if map[f"{y},{x}"] == "무인도":
             print("무인도 갇힘")
             screen.player[playerNum].island_turn = 3
+            continue
+        if map[f"{y},{x}"] == "시작":
             continue
 
         if map[f"{y},{x}"] not in special_land:           # 나라를 밟았을 때
