@@ -1,4 +1,5 @@
 import binascii
+import time
 from tkinter import *
 import tkinter.font as tkfont
 import requests
@@ -323,6 +324,7 @@ def gamePlay(screen):
             print(f"M {landLocation[curLocation]} {landLocation[location]} {playerNum}")
             # ser.write(binascii.unhexlify(f"{landLocation[location]}"))
 
+            time.sleep(100)
 
             y,x = landLocation[location].split(',')
             y,x = int(y), int(x)
@@ -398,6 +400,7 @@ def gamePlay(screen):
                             print(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
                             # ser.write(binascii.unhexlify(f'L {landLocation[location]} {playerNum} {buildingNum + 1}'))
 
+                            time.sleep(100)
                     requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
 
 
@@ -438,6 +441,8 @@ def gamePlay(screen):
                         print(f"L {landLocation[area_id]} {playerNum} {1}")
                         # ser.write(binascii.unhexlify(f"L {landLocation[area_id]} {playerNum} {1}"))
 
+                        time.sleep(100)
+
 
         if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기
             lands = requests.put(url["bankruptcy"].format(playerNum)).json()    # 플레이어의 모든 땅 갖고 오기    # ---------------------------------------
@@ -450,6 +455,7 @@ def gamePlay(screen):
 
             ser.write(f"B {result}".encode('utf-8'))
             # ser.write(binascii.unhexlify(f"B {result}"))
+            time.sleep(100)
 
             screen.player[playerNum].bankruptcy()
 
