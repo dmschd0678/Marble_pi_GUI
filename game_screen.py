@@ -310,14 +310,17 @@ def gamePlay(screen):
             # 주사위 값 받아오기
             diceNum = int(ser.readline().decode("utf-8"))
             print(diceNum)
+
             curLocation = requests.get(url["playerInfo"].format(playerNum))
             curLocation = landLocation[curLocation.json()["user"]["location"]]
+
             # 서버 주사위 값 넘기기
             requests.patch(url["move"].format(playerNum,diceNum))
             location = requests.get(url["playerInfo"].format(playerNum))
             location = landLocation[location.json()["user"]["location"]]
 
             ser.write((f"M {landLocation[curLocation]} {landLocation[location]}").encode("utf-8"))
+            print(f"M {landLocation[curLocation]} {landLocation[location]}")
             # ser.write(binascii.unhexlify(f"{landLocation[location]}"))
 
 
@@ -392,6 +395,7 @@ def gamePlay(screen):
                             requests.patch(url["upgradeLand"].format(area_id,playerNum,upgradeInfo))
 
                             ser.write(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
+                            print(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
                             # ser.write(binascii.unhexlify(f'L {landLocation[location]} {playerNum} {buildingNum + 1}'))
 
                     requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
@@ -408,7 +412,7 @@ def gamePlay(screen):
 
             else:       #주인이 없을 때
                 cost = int(requests.get(url["Landcost"].format(area_id)).json()["cost"])# ------------------------------------------------------------------
-                playerMoney = int(requests.get(url["playerInfo"]).json()["user"]["money"])
+                playerMoney = int(requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"])
                 if playerMoney >= cost:
 
                     if buyLand.buyLand(map[f"{y},{x}"], 0, cost):
@@ -431,6 +435,7 @@ def gamePlay(screen):
                         screen.land[y][x].image = image
 
                         ser.write((f"L {landLocation[area_id]} {playerNum} {1}").encode("utf-8"))
+                        print(f"L {landLocation[area_id]} {playerNum} {1}")
                         # ser.write(binascii.unhexlify(f"L {landLocation[area_id]} {playerNum} {1}"))
 
 
