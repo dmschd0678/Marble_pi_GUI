@@ -320,7 +320,7 @@ def gamePlay(screen):
             location = landLocation[location.json()["user"]["location"]]
 
             ser.write((f"M {landLocation[curLocation]} {landLocation[location]} {playerNum}").encode("utf-8"))
-            print(f"M {landLocation[curLocation]} {landLocation[location]}")
+            print(f"M {landLocation[curLocation]} {landLocation[location]} {playerNum}")
             # ser.write(binascii.unhexlify(f"{landLocation[location]}"))
 
 
