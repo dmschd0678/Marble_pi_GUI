@@ -17,7 +17,23 @@ def noButton(window):
 
     window.destroy()
 
-def useKey(name, *args):
+# 돈 출력 형식
+def moneyStr(money):
+    str = ""
+    if money // 100000000 > 1:
+        str += f"{money // 100000000}" + "억"
+        money %= 100000000
+    if money // 10000 > 1:
+        str += f"{money // 10000}" + "만"
+        money %= 10000
+    if money % 10000 != 0:
+        str += f"{money % 10000}"
+    if money % 10000 == 0:
+        str += "0"
+    str += "원"
+    return str
+
+def useKey(name, args):
 
     global is_use
     w = 400
@@ -57,7 +73,7 @@ def useKey(name, *args):
     word.pack(side = "top", pady = 10)
 
     if name == "우대권":
-        func.configure(text = "통행료 : {} -> 무료".format(1000))
+        func.configure(text = "통행료 : {} -> 무료".format(moneyStr(args)))
         word.configure(text = "우대권을 사용하시겠습니까?")
     else:
         func.configure(text = "무인도에서 즉시 탈출")
@@ -78,4 +94,4 @@ def useKey(name, *args):
     return is_use
 
 if __name__ == "__main__":
-    useKey("무인도 탈출")
+    useKey("우대권",1000011200230)
