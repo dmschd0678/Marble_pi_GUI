@@ -79,7 +79,7 @@ def buyLand(name, buildingNum, pay):
 
 
         font = tkfont.Font(size=20, family="malgun gothic")
-        contentLabel = Label(frame, text="{} 건설\n건설 비용 -> {}".format(moneyStr(pay)), bg="#616161", font=font, fg="white")
+        contentLabel = Label(frame, text="{} 건설\n건설 비용 -> {}".format(name, moneyStr(pay)), bg="#616161", font=font, fg="white")
         contentLabel.pack(pady = 10)
 
     image = PhotoImage(file="Building/close.png", master=root)
