@@ -319,8 +319,8 @@ def gamePlay(screen):
             location = requests.get(url["playerInfo"].format(playerNum))
             location = landLocation[location.json()["user"]["location"]]
 
-            ser.write((f"M {landLocation[curLocation]} {landLocation[location]} {playerNum}").encode("utf-8"))
-            print(f"M {landLocation[curLocation]} {landLocation[location]} {playerNum}")
+            ser.write((f"M {landLocation[int(curLocation)]} {landLocation[int(location)]} {playerNum}").encode("utf-8"))
+            print(f"M {landLocation[int(curLocation)]} {landLocation[int(location)]} {playerNum}")
             # ser.write(binascii.unhexlify(f"{landLocation[location]}"))
 
             time.sleep(0.1)
