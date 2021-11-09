@@ -20,6 +20,22 @@ def noButton(window):
     is_buy = False
     window.destroy()
 
+# 돈 출력 형식
+def moneyStr(self, money):
+    str = ""
+    if money // 100000000 > 1:
+        str += f"{money // 100000000}" + "억"
+        money %= 100000000
+    elif money // 10000 > 1:
+        str += f"{money // 10000}" + "만"
+        money %= 10000
+    elif money % 10000 != 0:
+        str += money % 10000
+    else:
+        str += "0"
+    str += "원"
+    return str
+
 def buyLand(name, buildingNum, pay):
 
     w = 400
@@ -51,8 +67,7 @@ def buyLand(name, buildingNum, pay):
         buildingImage.pack(side="top", pady=10)
 
         font = tkfont.Font(size=20, family="malgun gothic")
-        contentLabel = Label(frame, text="{}\n건설 비용 -> {}".format(name,pay), bg="#616161",
-                             font=font, fg="white")
+        contentLabel = Label(frame, text="{}\n건설 비용 -> {}".format(name, moneyStr(pay)), bg="#616161",font=font, fg="white")
         contentLabel.pack(pady=10)
 
     else:
@@ -64,7 +79,7 @@ def buyLand(name, buildingNum, pay):
 
 
         font = tkfont.Font(size=20, family="malgun gothic")
-        contentLabel = Label(frame, text="{} 건설\n건설 비용 -> {}".format(building_kor[buildingNum],pay), bg="#616161", font=font, fg="white")
+        contentLabel = Label(frame, text="{} 건설\n건설 비용 -> {}".format(moneyStr(pay)), bg="#616161", font=font, fg="white")
         contentLabel.pack(pady = 10)
 
     image = PhotoImage(file="Building/close.png", master=root)
@@ -81,4 +96,4 @@ def buyLand(name, buildingNum, pay):
 
     return is_buy
 if __name__ == "__main__":
-    print(buyLand("퀸 엘리자베스", 2, 1000000))
+    print(buyLand("서울", 2, 1000000))
