@@ -21,7 +21,7 @@ def noButton(window):
     window.destroy()
 
 # 돈 출력 형식
-def moneyStr(self, money):
+def moneyStr(money):
     str = ""
     if money // 100000000 > 1:
         str += f"{money // 100000000}" + "억"
