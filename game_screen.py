@@ -12,7 +12,7 @@ import useKey
 width = 0
 height = 0
 
-map = {"0,0" : "시작", "0,1" : "타이베이", "0,2" : "황금열쇠", "0,3" : "베이징", "0,4" : "마닐라", "0,5" : "제주도", "0,6" : "싱가포르", "0,7" : "황금열쇠", "0,8" : "카이로", "0,9" : "이스탄불", "0,10" : "무인도",
+map = {"0,0" : "시작", "0,1" : "타이베이", "0,2" : "황금열쇠", "0,3" : "베이징", "0,4" : "마닐라", "0,5" : "제주", "0,6" : "싱가포르", "0,7" : "황금열쇠", "0,8" : "카이로", "0,9" : "이스탄불", "0,10" : "무인도",
         "1,0" : "서울", "1,10" : "아테네",
         "2,0" : "사회복지기금", "2,10" : "황금열쇠",
         "3,0" : "뉴욕", "3,10" : "코펜하겐",
@@ -31,7 +31,7 @@ landLocation = ['0,0', '0,1', '0,2', '0,3', '0,4', '0,5', '0,6', '0,7', '0,8', '
         '9,0', '8,0', '7,0', '6,0', '5,0', '4,0','3,0','2,0','1,0'
        ]
 
-landNum = ["시작", "타이베이", "황금열쇠", "베이징", "마닐라", "제주도", "싱가포르", "황금열쇠", "카이로", "이스탄불", "무인도",
+landNum = ["시작", "타이베이", "황금열쇠", "베이징", "마닐라", "제주", "싱가포르", "황금열쇠", "카이로", "이스탄불", "무인도",
            "아테네", "황금열쇠", "코펜하겐", "스톡홀롬", "콩코드여객기", "베른", "황금열쇠", "베를린", "오타와", "사회복지기금 접수처",
            "부에노스 아이레스", "황금열쇠", "상파울루", "시드니", "부산", "하와이", "리스본", "퀸 엘리자베스호", "마드리드", "우주 여행",
            "도쿄", "컬럼비아호", "파리", "로마", "황금열쇠", "런던", "뉴욕", "사회복지기금", "서울"
@@ -299,12 +299,15 @@ def gamePlay(screen):
                 if "무인도 탈출" in screen.player[playerNum].goldenkey:  # 무인도 탈출을 갖고 있다면
                     if useKey.useKey("무인도 탈출"):                     # 탈출카드를 쓴다면
                         screen.player[playerNum].island_turn = 0
+                        print("무인도 탈출권 사용")
                         del screen.player[playerNum].goldenkey[screen.player[playerNum].goldenkey.index("무인도 탈출")]
                     else:                                               # 계속 갇혀있기
                         screen.player[playerNum].island_turn -= 1
+                        print("무인도 갇혀있는 중 {}".format(screen.player[playerNum].island_turn))
                         continue
                 else:                                                   # 계속 갇혀있기
                     screen.player[playerNum].island_turn -= 1
+                    print("무인도 갇혀있는 중 {}".format(screen.player[playerNum].island_turn))
                     continue
 
             # 주사위 값 받아오기
@@ -333,6 +336,7 @@ def gamePlay(screen):
         special_land = ["황금열쇠", "사회복지기금", "사회복지기금 접수처", "우주여행","무인도"]
 
         if map[f"{y},{x}"] == "황금열쇠":
+            print("황금열쇠")
 
             req = requests.get(url["getGoldenKey"].format(playerNum))
             req = req.json()
@@ -343,18 +347,22 @@ def gamePlay(screen):
                 screen.player[playerNum].key(req["title"])
 
         if map[f"{y},{x}"] == "사회복지기금":
+            print("사회복지기금 제출")
             requests.patch(url["funding"].format(playerNum))
             continue
 
         if map[f"{y},{x}"] == "사회복지기금 접수처":
+            print("사회복지기금 받음")
             requests.patch(url["fund"].format(playerNum))
             continue
 
         if map[f"{y},{x}"] == "우주여행":
+            print("우주여행 도착")
             screen.player[playerNum].spaceTravel = True
             continue
 
         if map[f"{y},{x}"] == "무인도":
+            print("무인도 갇힘")
             screen.player[playerNum].island_turn = 3
             continue
 
