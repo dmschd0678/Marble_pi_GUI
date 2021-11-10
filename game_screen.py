@@ -498,7 +498,7 @@ def gamePlay(screen):
 
         if len(sequence) == 1:
             screen.root.destroy()
-            GameOver.gameOver(playerNum, player_names[playerNum], player_color[playerNum])
+            GameOver.gameOver(playerNum)
 
 def start(playerNum):
     window(playerNum)
