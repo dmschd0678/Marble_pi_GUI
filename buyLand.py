@@ -6,7 +6,7 @@ color = "#F3CF98"
 
 building = ['villa', 'building', "hotel"]
 building_kor = ["주택", "빌딩", "호텔"]
-special_Land = ["컬럼비아호", "콩코드여객기","퀸 엘리자베스","부산","제주","서울"]
+special_Land = ["컬럼비아호", "콩코드여객기","퀸 엘리자베스","부산","제주도","서울"]
 
 is_buy = False
 
@@ -26,12 +26,12 @@ def moneyStr(money):
     if money // 100000000 > 1:
         str += f"{money // 100000000}" + "억"
         money %= 100000000
-    if money // 10000 > 1:
+    elif money // 10000 > 1:
         str += f"{money // 10000}" + "만"
         money %= 10000
-    if money % 10000 != 0:
-        str += f"{money % 10000}"
-    if money % 10000 == 0:
+    elif money % 10000 != 0:
+        str += money % 10000
+    else:
         str += "0"
     str += "원"
     return str
