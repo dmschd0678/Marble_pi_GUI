@@ -17,4 +17,4 @@ url = {"init" : "http://15.165.88.215:8888/init",                               
        "fund" : "http://15.165.88.215:8888/area/social/dispatch?user_id={}"         # 사회 복지기금 받기
         }
 
-print(requests.get(url["getLand"].format(28)).json())
+print(requests.get(url["getLand"].format(30)).json())
