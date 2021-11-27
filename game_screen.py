@@ -375,7 +375,7 @@ def gamePlay(screen):
                 print("사회복지기금 받음")
                 requests.patch(url["fund"].format(playerNum))
 
-            if map[f"{y},{x}"] == "우주 여행":
+            if map[f"{y},{x}"] == "우주여행":
                 print("우주여행 도착")
                 screen.player[playerNum].spaceTravel = True
 
