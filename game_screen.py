@@ -75,16 +75,16 @@ spaceDestination = []   # 우주 여행 도착지
 # 플레이어 클래스
 class Player():
     def __init__(self, frame, name, color, num):
+
+        requests.post(url["init"])
         self.name = name
-        self.money = 500000
+        self.money = 0
         self.goldenkey = []
         self.total_assets = self.money
         self.num = num
 
         self.island_turn = 0
         self.spaceTravel = False
-
-        self.location = [0,0]
 
         font = tkfont.Font(size = 20)
 
@@ -108,6 +108,8 @@ class Player():
 
         self.goldenKeyInfo = Label(self.playerFrame, text = "황금열쇠    : " + self.goldenKeyStr(self.goldenkey), font = font, bg = 'white', fg = color)
         self.goldenKeyInfo.pack(side="top", anchor = NW)
+
+        self.update()
 
     # 돈 출력 형식
     def moneyStr(self, money):
@@ -373,7 +375,7 @@ def gamePlay(screen):
                 print("사회복지기금 받음")
                 requests.patch(url["fund"].format(playerNum))
 
-            if map[f"{y},{x}"] == "우주여행":
+            if map[f"{y},{x}"] == "우주 여행":
                 print("우주여행 도착")
                 screen.player[playerNum].spaceTravel = True
 
