@@ -305,6 +305,8 @@ def gamePlay(screen):
             print("여행 실행")
             screen.player[playerNum].spaceTravel = False
 
+            y, x = spaceDestination
+
         # 주사위를 굴려야 됨
         elif ser.readable():
 
@@ -344,133 +346,133 @@ def gamePlay(screen):
                 y,x = location.split(',')
                 y,x = int(y), int(x)
 
-            # 이동 후 기능
-            special_land = ["황금열쇠", "사회복지기금", "사회복지기금 접수처", "우주여행","무인도"]
+        # 이동 후 기능
+        special_land = ["황금열쇠", "사회복지기금", "사회복지기금 접수처", "우주여행","무인도"]
 
-            if map[f"{y},{x}"] == "황금열쇠":
-                print("황금열쇠")
+        if map[f"{y},{x}"] == "황금열쇠":
+            print("황금열쇠")
 
-                curLocation = requests.get(url["playerInfo"].format(playerNum))
-                curLocation = landLocation[curLocation.json()["user"]["location"]]
+            curLocation = requests.get(url["playerInfo"].format(playerNum))
+            curLocation = landLocation[curLocation.json()["user"]["location"]]
 
-                req = requests.get(url["getGoldenKey"].format(playerNum))
-                req = req.json()
+            req = requests.get(url["getGoldenKey"].format(playerNum))
+            req = req.json()
 
-                location = requests.get(url["playerInfo"].format(playerNum))
-                location = landLocation[location.json()["user"]["location"]]
+            location = requests.get(url["playerInfo"].format(playerNum))
+            location = landLocation[location.json()["user"]["location"]]
 
-                ser.write((f"M {curLocation} {location} {playerNum}").encode("utf-8"))
-                print(f"M {curLocation} {location} {playerNum}")
+            ser.write((f"M {curLocation} {location} {playerNum}").encode("utf-8"))
+            print(f"M {curLocation} {location} {playerNum}")
 
-                Storage = showGoldenKey.showGoldenKey(req["key_id"],req["title"],req["situation"] + "\n" + req["command"])               # --------------------------------------------------------------------
+            Storage = showGoldenKey.showGoldenKey(req["key_id"],req["title"],req["situation"] + "\n" + req["command"])               # --------------------------------------------------------------------
 
-                if Storage:
-                    screen.player[playerNum].key(req["title"])
+            if Storage:
+                screen.player[playerNum].key(req["title"])
 
-            if map[f"{y},{x}"] == "사회복지기금":
-                print("사회복지기금 제출")
-                requests.patch(url["funding"].format(playerNum))
+        if map[f"{y},{x}"] == "사회복지기금":
+            print("사회복지기금 제출")
+            requests.patch(url["funding"].format(playerNum))
 
-            if map[f"{y},{x}"] == "사회복지기금 접수처":
-                print("사회복지기금 받음")
-                requests.patch(url["fund"].format(playerNum))
+        if map[f"{y},{x}"] == "사회복지기금 접수처":
+            print("사회복지기금 받음")
+            requests.patch(url["fund"].format(playerNum))
 
-            if map[f"{y},{x}"] == "우주여행":
-                print("우주여행 도착")
-                screen.player[playerNum].spaceTravel = True
+        if map[f"{y},{x}"] == "우주여행":
+            print("우주여행 도착")
+            screen.player[playerNum].spaceTravel = True
 
-            if map[f"{y},{x}"] == "무인도":
-                print("무인도 갇힘")
-                screen.player[playerNum].island_turn = 3
-            if map[f"{y},{x}"] == "시작":
-                pass
+        if map[f"{y},{x}"] == "무인도":
+            print("무인도 갇힘")
+            screen.player[playerNum].island_turn = 3
+        if map[f"{y},{x}"] == "시작":
+            pass
 
-            if map[f"{y},{x}"] not in special_land:           # 나라를 밟았을 때
+        if map[f"{y},{x}"] not in special_land:           # 나라를 밟았을 때
 
-                area_id = landNum.index(map[f"{y},{x}"])
+            area_id = landNum.index(map[f"{y},{x}"])
 
-                req = requests.get(url["getLand"].format(area_id))      # 땅 정보 가져오기
-                req = req.json()
+            req = requests.get(url["getLand"].format(area_id))      # 땅 정보 가져오기
+            req = req.json()
 
-                if int(req["city"]["owner"]) >= 0:   # 주인이 있을 때
+            if int(req["city"]["owner"]) >= 0:   # 주인이 있을 때
 
 
-                    if playerNum == int(req["city"]["owner"]): # 내가 주인 일 때
-                        land_type = requests.get(url["getLand"].format(area_id))
-                        land_type = land_type.json()["city"]["area_type"]
+                if playerNum == int(req["city"]["owner"]): # 내가 주인 일 때
+                    land_type = requests.get(url["getLand"].format(area_id))
+                    land_type = land_type.json()["city"]["area_type"]
 
-                        if land_type == "cant_build":
-                            pass
-
-                        else:
-
-                            buildings = req["city"]["villa_cnt"] + req["city"]["building_cnt"] + req["city"]["hotel_cnt"]
-
-                            upgradeInfo = []
-                            buildingNum = 0
-
-                            if buildings == 1:      # 주택만 있을 때
-                                upgradeInfo = [0,1,0]
-                                buildingNum = 1
-                            elif buildings == 2:    # 주택 + 빌딩이 있을 때
-                                upgradeInfo = [0,0,1]
-                                buildingNum = 2
-                            else:                   # 다 있을 때
-                                pass            # 아무것도 하지 않고 종료
-
-                            upgradeCost = requests.get(url["upgradecost"].format(area_id, *upgradeInfo)).json()["cost"]
-                            playerMoney = requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"]
-                            if upgradeCost < playerMoney:
-
-                                if buyLand.buyLand(req["city"]["city_name"], buildingNum, upgradeCost):
-                                    requests.patch(url["upgradeLand"].format(area_id,playerNum,upgradeInfo))
-
-                                    ser.write(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
-                                    print(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
-                                    # ser.write(binascii.unhexlify(f'L {landLocation[location]} {playerNum} {buildingNum + 1}'))
-
-                                    time.sleep(0.1)
-                            requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
-
+                    if land_type == "cant_build":
+                        pass
 
                     else:
-                        cost = requests.get(url["payInfo"].format(area_id))
-                        shield = 0
-                        if "우대권" in screen.player[playerNum].goldenkey:
-                            shield = useKey.useKey("우대권", cost)
-                            del screen.player[playerNum].goldnekey[screen.player[playerNum].goldenkey.index("우대권")]
 
-                        requests.patch(url["pay"].format(playerNum,area_id,shield))
+                        buildings = req["city"]["villa_cnt"] + req["city"]["building_cnt"] + req["city"]["hotel_cnt"]
 
-                else:       #주인이 없을 때
-                    cost = int(requests.get(url["Landcost"].format(area_id)).json()["cost"])# ------------------------------------------------------------------
-                    playerMoney = int(requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"])
-                    if playerMoney >= cost:
+                        upgradeInfo = []
+                        buildingNum = 0
 
-                        if buyLand.buyLand(map[f"{y},{x}"], 0, cost):
+                        if buildings == 1:      # 주택만 있을 때
+                            upgradeInfo = [0,1,0]
+                            buildingNum = 1
+                        elif buildings == 2:    # 주택 + 빌딩이 있을 때
+                            upgradeInfo = [0,0,1]
+                            buildingNum = 2
+                        else:                   # 다 있을 때
+                            pass            # 아무것도 하지 않고 종료
 
-                            color = ""
+                        upgradeCost = requests.get(url["upgradecost"].format(area_id, *upgradeInfo)).json()["cost"]
+                        playerMoney = requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"]
+                        if upgradeCost < playerMoney:
 
-                            if playerNum == 0:
-                                color = "red"
-                            elif playerNum == 1:
-                                color = "blue"
-                            elif playerNum == 2:
-                                color = "yellow"
-                            elif playerNum == 3:
-                                color = "green"
+                            if buyLand.buyLand(req["city"]["city_name"], buildingNum, upgradeCost):
+                                requests.patch(url["upgradeLand"].format(area_id,playerNum,upgradeInfo))
 
-                            requests.patch(url["buyLand"].format(area_id,playerNum))
+                                ser.write(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
+                                print(f'L {landLocation[location]} {playerNum} {buildingNum + 1}').encode("utf-8")
+                                # ser.write(binascii.unhexlify(f'L {landLocation[location]} {playerNum} {buildingNum + 1}'))
 
-                            image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
-                            screen.land[y][x].configure(image = image)
-                            screen.land[y][x].image = image
+                                time.sleep(0.1)
+                        requests.patch(url["upgradeLand"].format(area_id,playerNum,*upgradeInfo))
 
-                            ser.write((f"L {landLocation[area_id]} {playerNum} {1}").encode("utf-8"))
-                            print(f"L {landLocation[area_id]} {playerNum} {1}")
-                            # ser.write(binascii.unhexlify(f"L {landLocation[area_id]} {playerNum} {1}"))
 
-                            time.sleep(0.1)
+                else:
+                    cost = requests.get(url["payInfo"].format(area_id))
+                    shield = 0
+                    if "우대권" in screen.player[playerNum].goldenkey:
+                        shield = useKey.useKey("우대권", cost)
+                        del screen.player[playerNum].goldnekey[screen.player[playerNum].goldenkey.index("우대권")]
+
+                    requests.patch(url["pay"].format(playerNum,area_id,shield))
+
+            else:       #주인이 없을 때
+                cost = int(requests.get(url["Landcost"].format(area_id)).json()["cost"])# ------------------------------------------------------------------
+                playerMoney = int(requests.get(url["playerInfo"].format(playerNum)).json()["user"]["money"])
+                if playerMoney >= cost:
+
+                    if buyLand.buyLand(map[f"{y},{x}"], 0, cost):
+
+                        color = ""
+
+                        if playerNum == 0:
+                            color = "red"
+                        elif playerNum == 1:
+                            color = "blue"
+                        elif playerNum == 2:
+                            color = "yellow"
+                        elif playerNum == 3:
+                            color = "green"
+
+                        requests.patch(url["buyLand"].format(area_id,playerNum))
+
+                        image = PhotoImage(file = "{}Land/{}.png".format(color, map[f"{y},{x}"]))
+                        screen.land[y][x].configure(image = image)
+                        screen.land[y][x].image = image
+
+                        ser.write((f"L {landLocation[area_id]} {playerNum} {1}").encode("utf-8"))
+                        print(f"L {landLocation[area_id]} {playerNum} {1}")
+                        # ser.write(binascii.unhexlify(f"L {landLocation[area_id]} {playerNum} {1}"))
+
+                        time.sleep(0.1)
 
 
         if screen.player[playerNum].money < 0:      # 파산 및 순서 돌리기
