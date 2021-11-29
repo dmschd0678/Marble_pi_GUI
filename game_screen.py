@@ -382,8 +382,11 @@ def gamePlay(screen):
             screen.player[playerNum].spaceTravel = True
 
         if map[f"{y},{x}"] == "무인도":
-            print("무인도 갇힘")
-            screen.player[playerNum].island_turn = 3
+            if screen.player[playerNum].island_turn != 0:
+                pass
+            else:
+                print("무인도 갇힘")
+                screen.player[playerNum].island_turn = 3
         if map[f"{y},{x}"] == "시작":
             pass
 
