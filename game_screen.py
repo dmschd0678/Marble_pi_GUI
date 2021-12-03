@@ -322,6 +322,7 @@ def gamePlay(screen):
                 else:                                                   # 계속 갇혀있기
                     screen.player[playerNum].island_turn -= 1
                     print("무인도 갇혀있는 중 {}".format(screen.player[playerNum].island_turn))
+                y,x = 0,10
             else:
 
                 # 주사위 값 받아오기
@@ -387,6 +388,7 @@ def gamePlay(screen):
             else:
                 print("무인도 갇힘")
                 screen.player[playerNum].island_turn = 3
+
         if map[f"{y},{x}"] == "시작":
             pass
 
